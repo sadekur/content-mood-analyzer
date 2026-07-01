@@ -26,6 +26,8 @@ const Settings = () => {
   const [showApiKey, setShowApiKey] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [testingKey, setTestingKey] = useState(false);
+  const [testResult, setTestResult] = useState(null);
 
   // Fetch current settings when component loads
   useEffect(() => {
