@@ -185,7 +185,7 @@ class Content_Mood_Model {
     public static function get( $post_id ) {
         $post = get_post( $post_id );
         
-        if ( ! $post || $post->post_status !== 'publish' || $post->post_type !== 'post' ) {
+        if ( ! $post || $post->post_status !== 'publish' || ! cma_is_post_type_enabled( $post->post_type ) ) {
             return null;
         }
 
