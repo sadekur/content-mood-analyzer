@@ -241,7 +241,13 @@ class Content_Mood_Data {
             ) );
         }
 
-        $provider = new Gemini_Provider( $api_key );
+        $model = $request->get_param( 'model' );
+
+        if ( empty( $model ) ) {
+            $model = cma_get_setting( 'ai_model', 'gemini-2.0-flash' );
+        }
+
+        $provider = new Gemini_Provider( $api_key, $model );
         $result   = $provider->analyze(
             'Test Post',
             'This is a wonderful, fantastic, and great test post used to confirm the AI connection works.'
