@@ -98,11 +98,17 @@ const BulkAnalyzer = () => {
                 Total analyzed: <strong>{results.total}</strong> posts
               </p>
             )}
-            {typeof results.ai_analyzed === "number" && results.ai_analyzed > 0 && (
+            {typeof results.ai_analyzed === "number" && (
               <p className="text-center text-xs text-gray-500 mt-1">
                 {results.ai_analyzed} via AI, {results.keyword_analyzed} via keywords
                 {results.ai_usage &&
                   ` (${results.ai_usage.remaining}/${results.ai_usage.limit} AI requests left today)`}
+              </p>
+            )}
+            {results.ai_usage?.last_error && (
+              <p className="text-center text-xs text-red-600 mt-1">
+                ⚠️ AI requests are failing: {results.ai_usage.last_error} — posts above used the
+                keyword fallback instead.
               </p>
             )}
           </div>
