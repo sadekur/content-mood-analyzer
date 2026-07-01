@@ -126,6 +126,22 @@ class API {
             'permission_callback' => array( $this, 'check_permission' ),
         ));
 
+        // Daily sentiment counts for the Dashboard trend chart
+        $this->register_route(
+            '/trend',
+            array(
+                'methods'             => WP_REST_Server::READABLE,
+                'callback'            => array( new Content_Mood_Data(), 'get_trend' ),
+                'permission_callback' => array( $this, 'check_permission' ),
+                'args'                => array(
+                    'days' => array(
+                        'type'    => 'integer',
+                        'default' => 30,
+                    ),
+                ),
+            )
+        );
+
         // Test an AI API key
         $this->register_route(
             '/ai/test',
