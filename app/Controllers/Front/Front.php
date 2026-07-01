@@ -13,6 +13,7 @@ class Front {
     public function __construct() {
         $this->action( 'save_post', array( $this, 'analyze_post_sentiment', 10, 3 ) );
         $this->filter( 'the_content', array( $this, 'add_sentiment_badge' ) );
+        $this->filter( 'the_excerpt', array( $this, 'add_sentiment_badge_to_excerpt' ) );
     }
 
     /**
