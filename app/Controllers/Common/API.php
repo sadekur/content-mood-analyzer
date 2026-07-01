@@ -50,6 +50,26 @@ class API {
                             return in_array( $param, array( 'top', 'bottom', 'none' ) );
                         }
                     ),
+                    'enabled_post_types' => array(
+                        'sanitize_callback' => function( $param ) {
+                            return array_values( array_unique( array_map( 'sanitize_key', (array) $param ) ) );
+                        },
+                        'validate_callback' => function( $param ) {
+                            if ( ! is_array( $param ) ) {
+                                return false;
+                            }
+
+                            $valid = array_diff( array_keys( get_post_types( array( 'public' => true ) ) ), array( 'attachment' ) );
+
+                            foreach ( $param as $post_type ) {
+                                if ( ! in_array( $post_type, $valid, true ) ) {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
+                    ),
                     'ai_provider' => array(
                         'sanitize_callback' => 'sanitize_text_field',
                         'validate_callback' => function( $param ) {
