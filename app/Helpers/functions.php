@@ -77,9 +77,29 @@ function cma_migrate_legacy_settings_option() {
 }
 
 /**
- * Perform sentiment analysis on a post
+ * Perform sentiment analysis on a post.
+ *
+ * Tries the AI provider first (when enabled, a key is configured, and the
+ * daily quota isn't exhausted). Any AI failure - disabled, no key, quota
+ * hit, network error, unparsable response - falls back to the free
+ * keyword-based method so a post always ends up with a sentiment.
  */
 function cma_perform_sentiment_analysis( $post ) {
+    $ai_result = cma_maybe_analyze_with_ai( $post );
+
+    if ( null !== $ai_result ) {
+        $sentiment = $ai_result['sentiment'];
+
+        update_post_meta( $post->ID, '_post_sentiment', sanitize_text_field( $sentiment ) );
+        update_post_meta( $post->ID, '_post_sentiment_source', 'ai' );
+        update_post_meta( $post->ID, '_post_sentiment_confidence', $ai_result['confidence'] );
+        delete_post_meta( $post->ID, '_post_sentiment_counts' );
+        update_post_meta( $post->ID, '_post_sentiment_analyzed_at', current_time( 'mysql' ) );
+        delete_transient( 'cma_posts_' . $sentiment );
+
+        return $sentiment;
+    }
+
     $content = strtolower( $post->post_content . ' ' . $post->post_title );
 
     $positive_keywords = cma_get_keywords_array( cma_get_setting( 'positive_keywords', '' ) );
@@ -99,7 +119,119 @@ function cma_perform_sentiment_analysis( $post ) {
     }
 
     update_post_meta( $post->ID, '_post_sentiment', sanitize_text_field( $sentiment ) );
+    update_post_meta( $post->ID, '_post_sentiment_source', 'keyword' );
+    delete_post_meta( $post->ID, '_post_sentiment_confidence' );
+    update_post_meta( $post->ID, '_post_sentiment_counts', array(
+        'positive' => $positive_count,
+        'negative' => $negative_count,
+        'neutral'  => $neutral_count,
+    ) );
+    update_post_meta( $post->ID, '_post_sentiment_analyzed_at', current_time( 'mysql' ) );
     delete_transient( 'cma_posts_' . $sentiment );
 
     return $sentiment;
+}
+
+/**
+ * Attempt AI-based analysis for a post.
+ *
+ * @return array{sentiment:string,confidence:?float}|null Null when AI
+ *         analysis isn't enabled/available, so the caller should fall back
+ *         to the keyword method.
+ */
+function cma_maybe_analyze_with_ai( $post ) {
+    if ( ! cma_get_setting( 'ai_enabled', false ) ) {
+        return null;
+    }
+
+    if ( cma_ai_limit_reached() ) {
+        return null;
+    }
+
+    $provider = cma_get_ai_provider();
+
+    if ( ! $provider ) {
+        return null;
+    }
+
+    return $provider->analyze( $post->post_title, $post->post_content );
+}
+
+/**
+ * Instantiate the configured AI provider, or null if none is usable.
+ *
+ * Only Gemini is supported today; the setting/interface already allow more
+ * providers to be added without touching the analysis flow.
+ */
+function cma_get_ai_provider() {
+    $api_key = cma_get_setting( 'ai_api_key', '' );
+
+    if ( empty( $api_key ) ) {
+        return null;
+    }
+
+    $provider = cma_get_setting( 'ai_provider', 'gemini' );
+
+    switch ( $provider ) {
+        case 'gemini':
+        default:
+            return new \Content_Mood\Services\AI\Gemini_Provider( $api_key );
+    }
+}
+
+/**
+ * Get today's AI usage counter, resetting it when the date has rolled over.
+ *
+ * @return array{date:string,count:int}
+ */
+function cma_ai_get_usage() {
+    $today = current_time( 'Y-m-d' );
+    $usage = get_option( 'content_mood_analyzer_ai_usage', array() );
+
+    if ( empty( $usage['date'] ) || $usage['date'] !== $today ) {
+        $usage = array(
+            'date'  => $today,
+            'count' => 0,
+        );
+        update_option( 'content_mood_analyzer_ai_usage', $usage );
+    }
+
+    return $usage;
+}
+
+/**
+ * Whether today's AI request count has reached the configured daily limit.
+ */
+function cma_ai_limit_reached() {
+    $limit = (int) cma_get_setting( 'ai_daily_limit', 100 );
+    $usage = cma_ai_get_usage();
+
+    return $usage['count'] >= $limit;
+}
+
+/**
+ * Record one AI API request against today's usage counter.
+ */
+function cma_ai_record_usage() {
+    $usage = cma_ai_get_usage();
+    $usage['count']++;
+
+    update_option( 'content_mood_analyzer_ai_usage', $usage );
+}
+
+/**
+ * Usage summary for display in the admin Settings screen.
+ *
+ * @return array{used:int,limit:int,remaining:int,date:string}
+ */
+function cma_ai_get_usage_status() {
+    $usage = cma_ai_get_usage();
+    $limit = (int) cma_get_setting( 'ai_daily_limit', 100 );
+
+    return array(
+        'used'      => $usage['count'],
+        'limit'     => $limit,
+        'remaining' => max( 0, $limit - $usage['count'] ),
+        'date'      => $usage['date'],
+    );
 }
