@@ -116,10 +116,24 @@ class API {
             ),
         ));
 
-        // Bulk analyze all posts
+        // Start a background bulk analysis run
         register_rest_route( $this->namespace, '/analyze/bulk', array(
             'methods' => 'POST',
             'callback' => array( new Content_Mood_Data(), 'bulk_analyze' ),
+            'permission_callback' => array( $this, 'check_permission' ),
+        ));
+
+        // Poll progress of the background bulk analysis run
+        register_rest_route( $this->namespace, '/analyze/bulk/status', array(
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => array( new Content_Mood_Data(), 'get_bulk_status' ),
+            'permission_callback' => array( $this, 'check_permission' ),
+        ));
+
+        // Cancel the background bulk analysis run
+        register_rest_route( $this->namespace, '/analyze/bulk/cancel', array(
+            'methods' => 'POST',
+            'callback' => array( new Content_Mood_Data(), 'cancel_bulk_analysis' ),
             'permission_callback' => array( $this, 'check_permission' ),
         ));
 
