@@ -27,6 +27,10 @@ class Content_Mood_Data {
             'negative_keywords' => '',
             'neutral_keywords'  => '',
             'badge_position'    => 'top',
+            'ai_enabled'        => false,
+            'ai_provider'       => 'gemini',
+            'ai_api_key'        => '',
+            'ai_daily_limit'    => 100,
         );
 
         $current = wp_parse_args( $current, $defaults );
@@ -52,6 +56,32 @@ class Content_Mood_Data {
         if ( $request->has_param( 'badge_position' ) ) {
             $current['badge_position'] = $request->get_param( 'badge_position' );
             $updated_fields[] = 'badge_position';
+        }
+
+        if ( $request->has_param( 'ai_enabled' ) ) {
+            $current['ai_enabled'] = (bool) $request->get_param( 'ai_enabled' );
+            $updated_fields[] = 'ai_enabled';
+        }
+
+        if ( $request->has_param( 'ai_provider' ) ) {
+            $current['ai_provider'] = $request->get_param( 'ai_provider' );
+            $updated_fields[] = 'ai_provider';
+        }
+
+        if ( $request->has_param( 'ai_api_key' ) ) {
+            // A blank value keeps the previously saved key - the settings
+            // screen never receives the real key back, so it always submits
+            // blank unless the user actually typed a new one.
+            $new_key = $request->get_param( 'ai_api_key' );
+            if ( '' !== $new_key ) {
+                $current['ai_api_key'] = $new_key;
+                $updated_fields[] = 'ai_api_key';
+            }
+        }
+
+        if ( $request->has_param( 'ai_daily_limit' ) ) {
+            $current['ai_daily_limit'] = (int) $request->get_param( 'ai_daily_limit' );
+            $updated_fields[] = 'ai_daily_limit';
         }
 
         // Save as single array
