@@ -71,6 +71,7 @@ const ClearCache = () => {
 
         {/* Button */}
         <button
+          type="button"
           onClick={handleClearCache}
           disabled={isLoading}
           className={`
