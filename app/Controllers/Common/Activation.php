@@ -44,6 +44,14 @@ class Activation {
     public function deactivate() {
         // Clear all sentiment transients
         cma_clear_sentiment_cache();
+
+        // Stop any in-progress background bulk analysis - nothing will call
+        // cma_process_bulk_batch() again once deactivated, so leaving it
+        // scheduled/"running" would just be a stale cron event and a stuck
+        // progress bar if the plugin is reactivated later.
+        wp_clear_scheduled_hook( 'cma_process_bulk_batch' );
+        cma_cancel_bulk_queue();
+
         flush_rewrite_rules();
     }
 }
