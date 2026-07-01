@@ -160,7 +160,7 @@ class Content_Mood_Data {
      */
     public function bulk_analyze( $request ) {
         $args = array(
-            'post_type' => 'post',
+            'post_type' => cma_get_enabled_post_types(),
             'post_status' => 'publish',
             'posts_per_page' => -1,
             'fields' => 'ids'
