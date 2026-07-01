@@ -72,6 +72,8 @@ final class Content_Mood_Analyzer{
 	 */
 	public function init_plugin() {
 
+		cma_migrate_legacy_settings_option();
+
 		new Content_Mood\Controllers\Common\Assets();
 		new Content_Mood\Controllers\Common\Activation();
 		new Content_Mood\Controllers\Common\API();
