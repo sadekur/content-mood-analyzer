@@ -480,6 +480,19 @@ const Settings = () => {
                   </div>
                 )}
 
+                {aiUsage?.last_error && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <p className="text-sm text-red-800">
+                      <strong>⚠️ Last AI request failed:</strong> {aiUsage.last_error}
+                    </p>
+                    <p className="text-xs text-red-700 mt-1">
+                      Posts analyzed while this error persists are using the free
+                      keyword fallback instead of AI, even though the usage counter
+                      above still counts the attempt.
+                    </p>
+                  </div>
+                )}
+
                 <p className="text-xs text-gray-500">
                   To confirm AI analysis is actually running: save a key here, then
                   edit and update a post (or run Bulk Analysis below). Check the
