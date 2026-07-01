@@ -217,46 +217,52 @@ const Settings = () => {
     }
   };
 
-  const handleGenerateKeywords = async (sentiment, settingKey) => {
-    setGenerating((prev) => ({ ...prev, [sentiment]: true }));
-    setGenerateResult((prev) => ({ ...prev, [sentiment]: null }));
+  // Fills in all three keyword fields at once, each from its own prompt box,
+  // triggered by the single shared "Generate" button.
+  const handleGenerateAllKeywords = async () => {
+    setGeneratingAll(true);
+    setGenerateResult({ positive: null, negative: null, neutral: null });
 
-    try {
-      const response = await fetch(CONTENT_MOOD_ANALYZER?.apiUrl + "/ai/generate-keywords", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce,
-        },
-        body: JSON.stringify({ sentiment, prompt: keywordPrompts[sentiment] }),
-      });
-      const result = await response.json();
+    await Promise.all(
+      KEYWORD_FIELDS.map(async (field) => {
+        try {
+          const response = await fetch(CONTENT_MOOD_ANALYZER?.apiUrl + "/ai/generate-keywords", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce,
+            },
+            body: JSON.stringify({ sentiment: field.key, prompt: keywordPrompts[field.key] }),
+          });
+          const result = await response.json();
 
-      if (result.success) {
-        setSettings((prev) => ({ ...prev, [settingKey]: result.keywords }));
-        setGenerateResult((prev) => ({
-          ...prev,
-          [sentiment]: { success: true, message: "Keywords generated below — review, edit, then Save." },
-        }));
-      } else {
-        setGenerateResult((prev) => ({
-          ...prev,
-          [sentiment]: { success: false, message: result.message || "Failed to generate keywords." },
-        }));
-      }
+          if (result.success) {
+            setSettings((prev) => ({ ...prev, [field.settingKey]: result.keywords }));
+            setGenerateResult((prev) => ({
+              ...prev,
+              [field.key]: { success: true, message: "Generated." },
+            }));
+          } else {
+            setGenerateResult((prev) => ({
+              ...prev,
+              [field.key]: { success: false, message: result.message || "Failed to generate keywords." },
+            }));
+          }
 
-      if (result.ai_usage) {
-        setAiUsage(result.ai_usage);
-      }
-    } catch (error) {
-      console.error("Error generating keywords:", error);
-      setGenerateResult((prev) => ({
-        ...prev,
-        [sentiment]: { success: false, message: "An error occurred while generating keywords." },
-      }));
-    } finally {
-      setGenerating((prev) => ({ ...prev, [sentiment]: false }));
-    }
+          if (result.ai_usage) {
+            setAiUsage(result.ai_usage);
+          }
+        } catch (error) {
+          console.error("Error generating keywords:", error);
+          setGenerateResult((prev) => ({
+            ...prev,
+            [field.key]: { success: false, message: "An error occurred while generating keywords." },
+          }));
+        }
+      })
+    );
+
+    setGeneratingAll(false);
   };
 
   return (
