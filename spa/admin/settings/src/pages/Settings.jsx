@@ -45,6 +45,7 @@ const Settings = () => {
     negative_keywords: "",
     neutral_keywords: "",
     badge_position: "top",
+    enabled_post_types: ["post"],
     ai_provider: "gemini",
     ai_model: "gemini-2.0-flash",
     ai_api_key: "",
