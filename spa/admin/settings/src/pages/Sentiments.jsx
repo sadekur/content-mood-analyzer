@@ -148,6 +148,9 @@ const Sentiments = ({ page }) => {
                                                 {post.excerpt}
                                             </p>
                                             <div className="flex items-center gap-4 text-sm text-gray-500">
+                                                <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                                    {post.post_type_label || post.post_type}
+                                                </span>
                                                 <span>📅 {post.date}</span>
                                                 <span>✍️ {post.author}</span>
                                                 <span>ID: {post.id}</span>
