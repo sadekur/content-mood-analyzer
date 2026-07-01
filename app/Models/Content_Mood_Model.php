@@ -98,6 +98,9 @@ class Content_Mood_Model {
     public static function get_sentiment_counts() {
         global $wpdb;
 
+        $post_types   = cma_get_enabled_post_types();
+        $placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
+
         $sentiments = array( 'positive', 'neutral', 'negative' );
         $counts = array(
             'all' => 0,
@@ -111,10 +114,10 @@ class Content_Mood_Model {
                 WHERE pm.meta_key = '_post_sentiment'
                 AND pm.meta_value = %s
                 AND p.post_status = 'publish'
-                AND p.post_type = 'post'",
-                $sentiment
+                AND p.post_type IN ($placeholders)",
+                array_merge( array( $sentiment ), $post_types )
             ) );
-            
+
             $counts[ $sentiment ] = $count;
             $counts['all'] += $count;
         }
