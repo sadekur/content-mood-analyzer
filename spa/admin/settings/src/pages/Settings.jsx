@@ -125,9 +125,9 @@ const Settings = () => {
           "Content-Type": "application/json",
           "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce,
         },
-        // Test whatever is currently typed; if the field is blank (saved-key
-        // view), the backend falls back to testing the already-saved key.
-        body: JSON.stringify({ api_key: settings.ai_api_key }),
+        // Test whatever is currently typed/selected; if the key field is blank
+        // (saved-key view), the backend falls back to the already-saved key.
+        body: JSON.stringify({ api_key: settings.ai_api_key, model: settings.ai_model }),
       });
       const result = await response.json();
 
