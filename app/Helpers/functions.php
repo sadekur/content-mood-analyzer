@@ -151,6 +151,7 @@ function cma_maybe_analyze_with_ai( $post ) {
     $provider = cma_get_ai_provider();
 
     if ( ! $provider ) {
+        cma_ai_set_last_error( __( 'AI analysis is enabled but no API key is configured.', 'content-mood-analyzer' ) );
         return null;
     }
 
