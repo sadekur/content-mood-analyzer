@@ -199,7 +199,7 @@ function cma_ai_get_usage_status() {
 
 /**
  * Record the most recent AI request failure, so it can be surfaced in the
- * admin UI instead of silently falling back to keyword analysis.
+ * admin UI instead of failing silently.
  */
 function cma_ai_set_last_error( $message ) {
     update_option( 'content_mood_analyzer_ai_last_error', array(
