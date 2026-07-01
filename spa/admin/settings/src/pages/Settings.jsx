@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import BulkAnalyzer from "./components/BulkAnalyzer";
 import ClearCache from "./components/ClearCache";
 
 const TABS = [
@@ -380,6 +381,26 @@ const Settings = () => {
                   <option value="none">None</option>
                 </select>
               </div>
+            </div>
+
+            {/* Bulk Actions Section */}
+            <BulkAnalyzer />
+
+            {/* Clear Cache Section */}
+            <ClearCache />
+
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-700 mb-3">
+                About Sentiment Analysis
+              </h2>
+              <p className="text-gray-600">
+                This plugin analyzes the sentiment of your WordPress posts by
+                counting the keywords you define. Posts are analyzed for
+                positive, negative, or neutral sentiment based on the frequency
+                of matches with your defined keyword lists. AI can optionally
+                help research those keyword lists, but never analyzes posts
+                directly.
+              </p>
             </div>
           </>
         )}
