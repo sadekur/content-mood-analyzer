@@ -24,14 +24,15 @@ class Content_Mood_Data {
         $current = get_option( $this->option_name, array() );
 
         $defaults = array(
-            'positive_keywords' => '',
-            'negative_keywords' => '',
-            'neutral_keywords'  => '',
-            'badge_position'    => 'top',
-            'ai_provider'       => 'gemini',
-            'ai_model'          => 'gemini-2.0-flash',
-            'ai_api_key'        => '',
-            'ai_daily_limit'    => 100,
+            'positive_keywords'  => '',
+            'negative_keywords'  => '',
+            'neutral_keywords'   => '',
+            'badge_position'     => 'top',
+            'enabled_post_types' => array( 'post' ),
+            'ai_provider'        => 'gemini',
+            'ai_model'           => 'gemini-2.0-flash',
+            'ai_api_key'         => '',
+            'ai_daily_limit'     => 100,
         );
 
         $current = wp_parse_args( $current, $defaults );
@@ -57,6 +58,11 @@ class Content_Mood_Data {
         if ( $request->has_param( 'badge_position' ) ) {
             $current['badge_position'] = $request->get_param( 'badge_position' );
             $updated_fields[] = 'badge_position';
+        }
+
+        if ( $request->has_param( 'enabled_post_types' ) ) {
+            $current['enabled_post_types'] = (array) $request->get_param( 'enabled_post_types' );
+            $updated_fields[] = 'enabled_post_types';
         }
 
         if ( $request->has_param( 'ai_provider' ) ) {
