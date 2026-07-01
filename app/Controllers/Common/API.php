@@ -96,9 +96,6 @@ class API {
             ),
         ));
 
-        // REMOVE_ME_MARKER
-        register_rest_route($this->namespace, '/analyze/bulk', array(
-            'methods' => 'POST',
 			'callback'   => array( new Content_Mood_Data(), 'bulk_analyze' ),
             'permission_callback' => array($this, 'check_permission'),
         ));
