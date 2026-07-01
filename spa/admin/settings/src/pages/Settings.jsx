@@ -61,6 +61,8 @@ const Settings = () => {
   const [testingKey, setTestingKey] = useState(false);
   const [testResult, setTestResult] = useState(null);
 
+  const [availablePostTypes, setAvailablePostTypes] = useState([]);
+
   const [keywordPrompts, setKeywordPrompts] = useState({ positive: "", negative: "", neutral: "" });
   const [generatingAll, setGeneratingAll] = useState(false);
   const [generateResult, setGenerateResult] = useState({ positive: null, negative: null, neutral: null });
