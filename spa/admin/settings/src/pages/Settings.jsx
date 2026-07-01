@@ -101,6 +101,16 @@ const Settings = () => {
     }));
   };
 
+  const handlePostTypeToggle = (postType) => {
+    setSettings((prev) => {
+      const current = prev.enabled_post_types || [];
+      const next = current.includes(postType)
+        ? current.filter((type) => type !== postType)
+        : [...current, postType];
+      return { ...prev, enabled_post_types: next };
+    });
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     setLoading(true);
