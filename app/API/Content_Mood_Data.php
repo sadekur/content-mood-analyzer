@@ -159,17 +159,25 @@ class Content_Mood_Data {
             'fields' => 'ids'
         );
 
-        $post_ids = get_posts( $args );
-        $analyzed = 0;
-        $results = array();
+        $post_ids   = get_posts( $args );
+        $analyzed   = 0;
+        $ai_count   = 0;
+        $results    = array();
 
         foreach ( $post_ids as $post_id ) {
             $post = get_post( $post_id );
             if ( $post ) {
                 $sentiment = cma_perform_sentiment_analysis( $post );
+                $source    = get_post_meta( $post_id, '_post_sentiment_source', true );
+
+                if ( 'ai' === $source ) {
+                    $ai_count++;
+                }
+
                 $results[] = array(
-                    'post_id' => $post_id,
+                    'post_id'   => $post_id,
                     'sentiment' => $sentiment,
+                    'source'    => $source,
                 );
                 $analyzed++;
             }
@@ -182,6 +190,9 @@ class Content_Mood_Data {
             'success' => true,
             'analyzed' => $analyzed,
             'total' => count( $post_ids ),
+            'ai_analyzed' => $ai_count,
+            'keyword_analyzed' => $analyzed - $ai_count,
+            'ai_usage' => cma_ai_get_usage_status(),
             'results' => $results,
             'message' => sprintf(
                 __( 'Analyzed %d posts successfully.', 'content-mood-analyzer' ),
