@@ -80,9 +80,9 @@ const Sentiments = () => {
   };
 
   return (
-    <div className="sentiment-analyzer-container max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+    <div className="content-mood-analyzer-container max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">
-        Sentiment Analyzer Settings
+        Content Mood Analyzer Settings
       </h1>
 
       <form onSubmit={handleSave} className="space-y-6">
