@@ -56,8 +56,24 @@ function cma_get_sentiment_badge_html( $sentiment ) {
 }
 
 function cma_get_setting( $key, $default = '' ) {
-        $settings = get_option( 'sentiment_analyzer_settings', array() );
+        $settings = get_option( 'content_mood_analyzer_settings', array() );
         return isset( $settings[$key] ) ? $settings[$key] : $default;
+}
+
+/**
+ * One-time migration of the settings option from its old name
+ * (sentiment_analyzer_settings) to the current one (content_mood_analyzer_settings),
+ * so sites that saved settings before the rename don't lose them.
+ */
+function cma_migrate_legacy_settings_option() {
+    if ( false === get_option( 'content_mood_analyzer_settings', false ) ) {
+        $legacy = get_option( 'sentiment_analyzer_settings', false );
+
+        if ( false !== $legacy ) {
+            update_option( 'content_mood_analyzer_settings', $legacy );
+            delete_option( 'sentiment_analyzer_settings' );
+        }
+    }
 }
 
 /**
