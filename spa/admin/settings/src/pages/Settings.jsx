@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import BulkAnalyzer from "./components/BulkAnalyzer";
 import ClearCache from "./components/ClearCache";
 
 const TABS = [
