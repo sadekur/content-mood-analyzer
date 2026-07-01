@@ -42,7 +42,7 @@ class Shortcode {
         
         // Query posts
         $args = array(
-            'post_type' => 'post',
+            'post_type' => cma_get_enabled_post_types(),
             'post_status' => 'publish',
             'posts_per_page' => $posts_per_page,
             'paged' => $paged,
