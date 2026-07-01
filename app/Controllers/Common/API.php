@@ -50,6 +50,24 @@ class API {
                             return in_array( $param, array( 'top', 'bottom', 'none' ) );
                         }
                     ),
+                    'ai_enabled' => array(
+                        'sanitize_callback' => 'rest_sanitize_boolean',
+                    ),
+                    'ai_provider' => array(
+                        'sanitize_callback' => 'sanitize_text_field',
+                        'validate_callback' => function( $param ) {
+                            return in_array( $param, array( 'gemini' ), true );
+                        }
+                    ),
+                    'ai_api_key' => array(
+                        'sanitize_callback' => 'sanitize_text_field',
+                    ),
+                    'ai_daily_limit' => array(
+                        'sanitize_callback' => 'absint',
+                        'validate_callback' => function( $param ) {
+                            return is_numeric( $param ) && $param >= 1 && $param <= 100000;
+                        }
+                    ),
                 ),
             )
         );
