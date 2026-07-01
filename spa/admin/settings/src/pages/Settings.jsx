@@ -106,6 +106,39 @@ const Settings = () => {
     }
   };
 
+  const handleTestApiKey = async () => {
+    setTestingKey(true);
+    setTestResult(null);
+
+    try {
+      const response = await fetch(CONTENT_MOOD_ANALYZER?.apiUrl + "/ai/test", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce,
+        },
+        // Test whatever is currently typed; if the field is blank (saved-key
+        // view), the backend falls back to testing the already-saved key.
+        body: JSON.stringify({ api_key: settings.ai_api_key }),
+      });
+      const result = await response.json();
+
+      setTestResult({
+        success: !!result.success,
+        message: result.message || (result.success ? "Success!" : "The test request failed."),
+      });
+
+      if (result.ai_usage) {
+        setAiUsage(result.ai_usage);
+      }
+    } catch (error) {
+      console.error("Error testing API key:", error);
+      setTestResult({ success: false, message: "An error occurred while testing the API key." });
+    } finally {
+      setTestingKey(false);
+    }
+  };
+
   const handleRemoveApiKey = async () => {
     if (
       !window.confirm(
