@@ -140,6 +140,9 @@ class API {
                     'api_key' => array(
                         'sanitize_callback' => 'sanitize_text_field',
                     ),
+                    'model' => array(
+                        'sanitize_callback' => 'sanitize_text_field',
+                    ),
                 ),
             )
         );
