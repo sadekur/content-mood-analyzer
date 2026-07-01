@@ -100,7 +100,8 @@ class Content_Mood_Data {
         if ( $saved ) {
             if ( in_array( 'positive_keywords', $updated_fields ) ||
                 in_array( 'negative_keywords', $updated_fields ) ||
-                in_array( 'neutral_keywords', $updated_fields ) ) {
+                in_array( 'neutral_keywords', $updated_fields ) ||
+                in_array( 'enabled_post_types', $updated_fields ) ) {
                 cma_clear_sentiment_cache();
             }
 
