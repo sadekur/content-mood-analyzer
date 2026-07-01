@@ -436,19 +436,22 @@ class Content_Mood_Data {
             ), 404 );
         }
 
-        $sentiment = get_post_meta( $post_id, '_post_sentiment', true );
+        $sentiment        = get_post_meta( $post_id, '_post_sentiment', true );
+        $post_type_object = get_post_type_object( $post->post_type );
 
         return rest_ensure_response( array(
             'success' => true,
             'post'    => array(
-                'id'        => $post->ID,
-                'title'     => get_the_title( $post_id ),
-                'content'   => apply_filters( 'the_content', $post->post_content ),
-                'excerpt'   => get_the_excerpt( $post_id ),
-                'permalink' => get_permalink( $post_id ),
-                'date'      => get_the_date( '', $post_id ),
-                'sentiment' => $sentiment,
-                'author'    => get_the_author_meta( 'display_name', $post->post_author ),
+                'id'              => $post->ID,
+                'title'           => get_the_title( $post_id ),
+                'content'         => apply_filters( 'the_content', $post->post_content ),
+                'excerpt'         => get_the_excerpt( $post_id ),
+                'permalink'       => get_permalink( $post_id ),
+                'date'            => get_the_date( '', $post_id ),
+                'sentiment'       => $sentiment,
+                'post_type'       => $post->post_type,
+                'post_type_label' => $post_type_object ? $post_type_object->labels->singular_name : $post->post_type,
+                'author'          => get_the_author_meta( 'display_name', $post->post_author ),
             ),
         ) );
     }
