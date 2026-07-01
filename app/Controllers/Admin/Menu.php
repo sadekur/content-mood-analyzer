@@ -15,8 +15,8 @@ class Menu {
     public function register_menus() {
         // Main top-level menu (Overview/Landing page - NO hash)
         add_menu_page(
-            __( 'Sentiment Analyzer', 'content-mood-analyzer' ),
-            __( 'Sentiment Analyzer', 'content-mood-analyzer' ),
+            __( 'Content Mood Analyzer', 'content-mood-analyzer' ),
+            __( 'Content Mood Analyzer', 'content-mood-analyzer' ),
             'manage_options',
             'content-mood-analyzer',
             [ $this, 'render_main_page' ],
