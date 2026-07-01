@@ -141,6 +141,8 @@ class Content_Mood_Data {
             'success' => true,
             'post_id' => $post_id,
             'sentiment' => $sentiment,
+            'source' => get_post_meta( $post_id, '_post_sentiment_source', true ),
+            'ai_usage' => cma_ai_get_usage_status(),
             'message' => __( 'Post analyzed successfully.', 'content-mood-analyzer' ),
         ) );
     }
