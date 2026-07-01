@@ -425,7 +425,7 @@ class Content_Mood_Data {
         $post_id = $request->get_param( 'id' );
         $post = get_post( $post_id );
 
-        if ( ! $post || $post->post_status !== 'publish' ) {
+        if ( ! $post || $post->post_status !== 'publish' || ! cma_is_post_type_enabled( $post->post_type ) ) {
             return rest_ensure_response( array(
                 'success' => false,
                 'message' => __( 'Post not found.', 'content-mood-analyzer' ),
