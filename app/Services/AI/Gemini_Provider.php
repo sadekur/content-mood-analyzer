@@ -32,6 +32,7 @@ class Gemini_Provider implements Provider_Interface {
 	 */
 	public function analyze( $title, $content ) {
 		if ( empty( $this->api_key ) ) {
+			cma_ai_set_last_error( __( 'No Gemini API key is configured.', 'content-mood-analyzer' ) );
 			return null;
 		}
 
@@ -83,30 +84,59 @@ class Gemini_Provider implements Provider_Interface {
 		// whether or not Gemini returns a usable result.
 		cma_ai_record_usage();
 
-		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+		if ( is_wp_error( $response ) ) {
+			cma_ai_set_last_error(
+				sprintf(
+					/* translators: %s: underlying network error message */
+					__( 'Could not reach Gemini: %s', 'content-mood-analyzer' ),
+					$response->get_error_message()
+				)
+			);
 			return null;
 		}
 
-		$body     = json_decode( wp_remote_retrieve_body( $response ), true );
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( 200 !== $status ) {
+			$api_message = $body['error']['message'] ?? null;
+
+			cma_ai_set_last_error(
+				$api_message
+					? sprintf( '(HTTP %d) %s', $status, $api_message )
+					: sprintf(
+						/* translators: %d: HTTP status code returned by Gemini */
+						__( 'Gemini API request failed with HTTP %d.', 'content-mood-analyzer' ),
+						$status
+					)
+			);
+			return null;
+		}
+
 		$raw_text = $body['candidates'][0]['content']['parts'][0]['text'] ?? null;
 
 		if ( empty( $raw_text ) ) {
+			cma_ai_set_last_error( __( 'Gemini returned an empty response.', 'content-mood-analyzer' ) );
 			return null;
 		}
 
 		$parsed = json_decode( $raw_text, true );
 
 		if ( ! is_array( $parsed ) || empty( $parsed['sentiment'] ) ) {
+			cma_ai_set_last_error( __( 'Gemini returned a response in an unexpected format.', 'content-mood-analyzer' ) );
 			return null;
 		}
 
 		$sentiment = strtolower( $parsed['sentiment'] );
 
 		if ( ! in_array( $sentiment, array( 'positive', 'negative', 'neutral' ), true ) ) {
+			cma_ai_set_last_error( __( 'Gemini returned an unrecognized sentiment value.', 'content-mood-analyzer' ) );
 			return null;
 		}
 
 		$confidence = isset( $parsed['confidence'] ) ? max( 0, min( 1, (float) $parsed['confidence'] ) ) : null;
+
+		cma_ai_clear_last_error();
 
 		return array(
 			'sentiment'  => $sentiment,
