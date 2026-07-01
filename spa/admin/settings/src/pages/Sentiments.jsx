@@ -143,6 +143,11 @@ const Sentiments = ({ page }) => {
                                                 `}>
                                                     {post.sentiment.charAt(0).toUpperCase() + post.sentiment.slice(1)}
                                                 </span>
+                                                {post.source && (
+                                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
+                                                        {post.source === 'ai' ? '🤖 AI' : 'Keyword'}
+                                                    </span>
+                                                )}
                                             </div>
                                             <p className="text-gray-600 text-sm mb-3">
                                                 {post.excerpt}
