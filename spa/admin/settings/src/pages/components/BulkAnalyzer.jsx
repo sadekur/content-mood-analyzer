@@ -36,8 +36,17 @@ const BulkAnalyzer = () => {
         throw new Error(data.message || "Analysis completed with errors");
       }
 
-      // Success!
-      setResults(data.data);
+      // Success! Tally sentiment counts from the per-post results, since the
+      // API returns a flat list rather than pre-aggregated counts.
+      const counts = (data.results || []).reduce(
+        (acc, item) => {
+          acc[item.sentiment] = (acc[item.sentiment] || 0) + 1;
+          return acc;
+        },
+        { positive: 0, negative: 0, neutral: 0 }
+      );
+
+      setResults({ ...data, ...counts });
       setStatus("Bulk analysis completed successfully!");
       
     } catch (err) {
