@@ -148,6 +148,48 @@ class Content_Mood_Data {
     }
 
     /**
+     * Bulk analyze all posts (keyword-based, same as a single analyze - AI is
+     * never used here, it only researches keyword lists in the General tab).
+     */
+    public function bulk_analyze( $request ) {
+        $args = array(
+            'post_type' => 'post',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'fields' => 'ids'
+        );
+
+        $post_ids = get_posts( $args );
+        $analyzed = 0;
+        $results = array();
+
+        foreach ( $post_ids as $post_id ) {
+            $post = get_post( $post_id );
+            if ( $post ) {
+                $sentiment = cma_perform_sentiment_analysis( $post );
+                $results[] = array(
+                    'post_id' => $post_id,
+                    'sentiment' => $sentiment,
+                );
+                $analyzed++;
+            }
+        }
+
+        cma_clear_sentiment_cache();
+
+        return rest_ensure_response( array(
+            'success' => true,
+            'analyzed' => $analyzed,
+            'total' => count( $post_ids ),
+            'results' => $results,
+            'message' => sprintf(
+                __( 'Analyzed %d posts successfully.', 'content-mood-analyzer' ),
+                $analyzed
+            ),
+        ));
+    }
+
+    /**
      * Clear all sentiment caches
      */
     public function clear_cache( $request ) {
