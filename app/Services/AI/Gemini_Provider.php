@@ -22,9 +22,15 @@ class Gemini_Provider implements Provider_Interface {
 	 */
 	private $api_key;
 
-	public function __construct( $api_key ) {
+	/**
+	 * @param string      $api_key
+	 * @param string|null $model Model ID to use instead of the default, e.g. from
+	 *                           the `ai_model` setting. Falls back to the default
+	 *                           when empty.
+	 */
+	public function __construct( $api_key, $model = null ) {
 		$this->api_key = $api_key;
-		$this->model   = apply_filters( 'content_mood_analyzer_gemini_model', $this->model );
+		$this->model   = apply_filters( 'content_mood_analyzer_gemini_model', $model ?: $this->model );
 	}
 
 	/**
