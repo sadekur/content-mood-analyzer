@@ -66,7 +66,7 @@ const BulkAnalyzer = () => {
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <p className="text-sm text-gray-600 mb-6">
-          Run sentiment analysis on <strong>all published posts at once</strong> using your current keyword rules.
+          Run sentiment analysis on <strong>all published posts at once</strong> using your AI provider (if enabled) or your current keyword rules.
         </p>
 
         {/* Results Summary */}
