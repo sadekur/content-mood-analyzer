@@ -126,6 +126,21 @@ class API {
             'permission_callback' => array( $this, 'check_permission' ),
         ));
 
+        // Test an AI API key
+        $this->register_route(
+            '/ai/test',
+            array(
+                'methods'             => 'POST',
+                'callback'            => array( new Content_Mood_Data(), 'test_ai_connection' ),
+                'permission_callback' => array( $this, 'check_permission' ),
+                'args'                => array(
+                    'api_key' => array(
+                        'sanitize_callback' => 'sanitize_text_field',
+                    ),
+                ),
+            )
+        );
+
         // Get posts by sentiment
         $this->register_route(
             '/posts',
