@@ -144,6 +144,27 @@ class API {
             )
         );
 
+        // Research/generate a keyword list for one sentiment field
+        $this->register_route(
+            '/ai/generate-keywords',
+            array(
+                'methods'             => 'POST',
+                'callback'            => array( new Content_Mood_Data(), 'generate_keywords' ),
+                'permission_callback' => array( $this, 'check_permission' ),
+                'args'                => array(
+                    'sentiment' => array(
+                        'sanitize_callback' => 'sanitize_text_field',
+                        'validate_callback' => function( $param ) {
+                            return in_array( $param, array( 'positive', 'negative', 'neutral' ), true );
+                        }
+                    ),
+                    'prompt' => array(
+                        'sanitize_callback' => 'sanitize_text_field',
+                    ),
+                ),
+            )
+        );
+
         // Get posts by sentiment
         $this->register_route(
             '/posts',
