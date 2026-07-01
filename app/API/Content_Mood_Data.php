@@ -276,7 +276,15 @@ class Content_Mood_Data {
             ) );
         }
 
-        $model    = cma_get_setting( 'ai_model', 'gemini-2.0-flash' );
+        // Use the model from the request if provided, so switching the Model
+        // dropdown takes effect immediately without requiring Save first
+        // (mirrors how /ai/test already works).
+        $model = $request->get_param( 'model' );
+
+        if ( empty( $model ) ) {
+            $model = cma_get_setting( 'ai_model', 'gemini-2.0-flash' );
+        }
+
         $provider = new Gemini_Provider( $api_key, $model );
         $keywords = $provider->generate_keywords( $sentiment, $prompt );
 
