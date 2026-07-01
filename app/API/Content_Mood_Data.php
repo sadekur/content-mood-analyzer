@@ -135,10 +135,10 @@ class Content_Mood_Data {
             );
         }
 
-        if ( $post->post_type !== 'post' ) {
+        if ( ! cma_is_post_type_enabled( $post->post_type ) ) {
             return new \WP_Error(
                 'invalid_post_type',
-                __( 'Only posts can be analyzed.', 'content-mood-analyzer' ),
+                __( 'This post type is not enabled for sentiment analysis.', 'content-mood-analyzer' ),
                 array( 'status' => 400 )
             );
         }
