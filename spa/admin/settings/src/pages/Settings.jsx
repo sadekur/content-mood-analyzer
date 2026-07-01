@@ -260,18 +260,23 @@ const Settings = () => {
                 <h2 className="text-lg font-semibold text-gray-700">
                   AI-Powered Analysis
                 </h2>
-                <label className="inline-flex items-center cursor-pointer shrink-0">
-                  <input
-                    type="checkbox"
-                    name="ai_enabled"
-                    checked={!!settings.ai_enabled}
-                    onChange={handleInputChange}
-                    className="sr-only peer"
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={!!settings.ai_enabled}
+                  onClick={() =>
+                    setSettings((prev) => ({ ...prev, ai_enabled: !prev.ai_enabled }))
+                  }
+                  className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    settings.ai_enabled ? "bg-blue-600" : "bg-gray-300"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                      settings.ai_enabled ? "translate-x-5" : "translate-x-0.5"
+                    }`}
                   />
-                  <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 relative transition-colors">
-                    <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
-                  </div>
-                </label>
+                </button>
               </div>
               <p className="text-gray-600 text-sm mt-2">
                 Use a free AI model to classify sentiment instead of counting
