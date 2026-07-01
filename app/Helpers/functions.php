@@ -223,16 +223,45 @@ function cma_ai_record_usage() {
 /**
  * Usage summary for display in the admin Settings screen.
  *
- * @return array{used:int,limit:int,remaining:int,date:string}
+ * @return array{used:int,limit:int,remaining:int,date:string,last_error:?string}
  */
 function cma_ai_get_usage_status() {
     $usage = cma_ai_get_usage();
     $limit = (int) cma_get_setting( 'ai_daily_limit', 100 );
+    $error = cma_ai_get_last_error();
 
     return array(
-        'used'      => $usage['count'],
-        'limit'     => $limit,
-        'remaining' => max( 0, $limit - $usage['count'] ),
-        'date'      => $usage['date'],
+        'used'       => $usage['count'],
+        'limit'      => $limit,
+        'remaining'  => max( 0, $limit - $usage['count'] ),
+        'date'       => $usage['date'],
+        'last_error' => $error ? $error['message'] : null,
     );
+}
+
+/**
+ * Record the most recent AI request failure, so it can be surfaced in the
+ * admin UI instead of silently falling back to keyword analysis.
+ */
+function cma_ai_set_last_error( $message ) {
+    update_option( 'content_mood_analyzer_ai_last_error', array(
+        'message' => $message,
+        'time'    => current_time( 'mysql' ),
+    ) );
+}
+
+/**
+ * Clear the last recorded AI failure - called whenever a request succeeds.
+ */
+function cma_ai_clear_last_error() {
+    delete_option( 'content_mood_analyzer_ai_last_error' );
+}
+
+/**
+ * @return array{message:string,time:string}|null
+ */
+function cma_ai_get_last_error() {
+    $error = get_option( 'content_mood_analyzer_ai_last_error', null );
+
+    return $error ?: null;
 }
