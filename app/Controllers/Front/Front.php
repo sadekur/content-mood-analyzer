@@ -55,7 +55,7 @@ class Front {
      * singular post views, so listing cards need their own hook.
      */
     public function add_sentiment_badge_to_excerpt($excerpt) {
-        if (is_singular('post') || get_post_type() !== 'post') {
+        if (is_singular() || !cma_is_post_type_enabled(get_post_type())) {
             return $excerpt;
         }
 
