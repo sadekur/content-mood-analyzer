@@ -216,6 +216,54 @@ class Content_Mood_Data {
     }
 
     /**
+     * Test an AI API key with one real request, without waiting for a full
+     * post analysis to discover whether it works. Uses the key from the
+     * request if provided (so an unsaved, just-typed key can be validated),
+     * otherwise the currently saved key.
+     */
+    public function test_ai_connection( $request ) {
+        $api_key = $request->get_param( 'api_key' );
+
+        if ( empty( $api_key ) ) {
+            $api_key = cma_get_setting( 'ai_api_key', '' );
+        }
+
+        if ( empty( $api_key ) ) {
+            return rest_ensure_response( array(
+                'success' => false,
+                'message' => __( 'Paste an API key first.', 'content-mood-analyzer' ),
+            ) );
+        }
+
+        $provider = new Gemini_Provider( $api_key );
+        $result   = $provider->analyze(
+            'Test Post',
+            'This is a wonderful, fantastic, and great test post used to confirm the AI connection works.'
+        );
+
+        if ( null === $result ) {
+            $error = cma_ai_get_last_error();
+
+            return rest_ensure_response( array(
+                'success'  => false,
+                'message'  => $error ? $error['message'] : __( 'The AI request failed for an unknown reason.', 'content-mood-analyzer' ),
+                'ai_usage' => cma_ai_get_usage_status(),
+            ) );
+        }
+
+        return rest_ensure_response( array(
+            'success'   => true,
+            'sentiment' => $result['sentiment'],
+            'message'   => sprintf(
+                /* translators: %s: the sentiment Gemini returned for the test text */
+                __( 'Success! Gemini classified the test text as "%s".', 'content-mood-analyzer' ),
+                $result['sentiment']
+            ),
+            'ai_usage'  => cma_ai_get_usage_status(),
+        ) );
+    }
+
+    /**
      * Get posts by sentiment
      */
     public function list( $request ) {
