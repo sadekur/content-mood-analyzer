@@ -633,9 +633,6 @@ const Settings = () => {
         </div>
       </form>
 
-      {/* Bulk Actions Section */}
-      <BulkAnalyzer />
-
       {/* Clear Cache Section */}
       <ClearCache />
 
