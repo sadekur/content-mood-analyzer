@@ -84,8 +84,8 @@ function cma_migrate_legacy_settings_option() {
  * hit, network error, unparsable response - falls back to the free
  * keyword-based method so a post always ends up with a sentiment.
  */
-function cma_perform_sentiment_analysis( $post ) {
-    $ai_result = cma_maybe_analyze_with_ai( $post );
+function cma_perform_sentiment_analysis( $post, $allow_ai = true ) {
+    $ai_result = $allow_ai ? cma_maybe_analyze_with_ai( $post ) : null;
 
     if ( null !== $ai_result ) {
         $sentiment = $ai_result['sentiment'];
