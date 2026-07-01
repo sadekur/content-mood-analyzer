@@ -2,13 +2,26 @@ import React, { useEffect, useState } from "react";
 import BulkAnalyzer from "./components/BulkAnalyzer";
 import ClearCache from "./components/ClearCache";
 
+const TABS = [
+  { key: "general", label: "General" },
+  { key: "ai", label: "AI Analysis" },
+];
+
 const Settings = () => {
+  const [activeTab, setActiveTab] = useState("general");
   const [settings, setSettings] = useState({
     positive_keywords: "",
     negative_keywords: "",
     neutral_keywords: "",
     badge_position: "top",
+    ai_enabled: false,
+    ai_provider: "gemini",
+    ai_api_key: "",
+    ai_api_key_set: false,
+    ai_daily_limit: 100,
   });
+  const [aiUsage, setAiUsage] = useState(null);
+  const [showApiKey, setShowApiKey] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
@@ -26,7 +39,10 @@ const Settings = () => {
       });
       const result = await response.json();
       if (result.success) {
-        setSettings(result.settings);
+        setSettings((prev) => ({ ...prev, ...result.settings }));
+        if (result.ai_usage) {
+          setAiUsage(result.ai_usage);
+        }
       }
     } catch (error) {
       console.error("Error fetching settings:", error);
@@ -34,10 +50,10 @@ const Settings = () => {
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setSettings((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -58,6 +74,11 @@ const Settings = () => {
       const result = await response.json();
 
       if (result.success) {
+        setSettings((prev) => ({ ...prev, ...result.settings }));
+        if (result.ai_usage) {
+          setAiUsage(result.ai_usage);
+        }
+        setShowApiKey(false);
         setMessage({
           type: "success",
           text: result.message || "Settings saved successfully!",
@@ -85,79 +106,233 @@ const Settings = () => {
         Content Mood Analyzer Settings
       </h1>
 
-      <form onSubmit={handleSave} className="space-y-6">
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-700 mb-3">
-            Keyword Settings
-          </h2>
-          <p className="text-gray-600 text-sm mb-4">
-            Enter keywords separated by commas. These will be used to determine
-            sentiment of your content.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Positive Keywords
-              </label>
-              <textarea
-                name="positive_keywords"
-                value={settings.positive_keywords}
-                onChange={handleInputChange}
-                placeholder="e.g., good, great, excellent, wonderful"
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 h-32"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Negative Keywords
-              </label>
-              <textarea
-                name="negative_keywords"
-                value={settings.negative_keywords}
-                onChange={handleInputChange}
-                placeholder="e.g., bad, terrible, awful, poor"
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 h-32"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Neutral Keywords
-              </label>
-              <textarea
-                name="neutral_keywords"
-                value={settings.neutral_keywords}
-                onChange={handleInputChange}
-                placeholder="e.g., okay, fine, average, normal"
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 h-32"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-700 mb-3">
-            Display Settings
-          </h2>
-
-          <div className="flex items-center">
-            <label className="block text-sm font-medium text-gray-700 mr-3">
-              Badge Position
-            </label>
-            <select
-              name="badge_position"
-              value={settings.badge_position}
-              onChange={handleInputChange}
-              className="w-[100px] p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+      <div className="border-b border-gray-200 mb-6">
+        <nav className="flex gap-6">
+          {TABS.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setActiveTab(tab.key)}
+              className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === tab.key
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
             >
-              <option value="top">Top</option>
-              <option value="bottom">Bottom</option>
-              <option value="none">None</option>
-            </select>
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      <form onSubmit={handleSave} className="space-y-6">
+        {activeTab === "general" && (
+          <>
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold text-gray-700 mb-3">
+                Keyword Settings
+              </h2>
+              <p className="text-gray-600 text-sm mb-4">
+                Enter keywords separated by commas. These will be used to determine
+                sentiment of your content.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Positive Keywords
+                  </label>
+                  <textarea
+                    name="positive_keywords"
+                    value={settings.positive_keywords}
+                    onChange={handleInputChange}
+                    placeholder="e.g., good, great, excellent, wonderful"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 h-32"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Negative Keywords
+                  </label>
+                  <textarea
+                    name="negative_keywords"
+                    value={settings.negative_keywords}
+                    onChange={handleInputChange}
+                    placeholder="e.g., bad, terrible, awful, poor"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 h-32"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Neutral Keywords
+                  </label>
+                  <textarea
+                    name="neutral_keywords"
+                    value={settings.neutral_keywords}
+                    onChange={handleInputChange}
+                    placeholder="e.g., okay, fine, average, normal"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 h-32"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold text-gray-700 mb-3">
+                Display Settings
+              </h2>
+
+              <div className="flex items-center">
+                <label className="block text-sm font-medium text-gray-700 mr-3">
+                  Badge Position
+                </label>
+                <select
+                  name="badge_position"
+                  value={settings.badge_position}
+                  onChange={handleInputChange}
+                  className="w-[100px] p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="top">Top</option>
+                  <option value="bottom">Bottom</option>
+                  <option value="none">None</option>
+                </select>
+              </div>
+            </div>
+          </>
+        )}
+
+        {activeTab === "ai" && (
+          <div className="mb-6 space-y-6">
+            <div className="flex items-start justify-between bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-700 mb-1">
+                  AI-Powered Analysis
+                </h2>
+                <p className="text-gray-600 text-sm">
+                  Use a free AI model to classify sentiment instead of counting
+                  keywords. Falls back to keyword analysis automatically once the
+                  daily request limit below is reached, so posts always get a
+                  sentiment.
+                </p>
+              </div>
+              <label className="inline-flex items-center cursor-pointer ml-4 shrink-0">
+                <input
+                  type="checkbox"
+                  name="ai_enabled"
+                  checked={!!settings.ai_enabled}
+                  onChange={handleInputChange}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 relative transition-colors">
+                  <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+                </div>
+              </label>
+            </div>
+
+            {settings.ai_enabled && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Provider
+                  </label>
+                  <select
+                    name="ai_provider"
+                    value={settings.ai_provider}
+                    onChange={handleInputChange}
+                    className="w-full md:w-64 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="gemini">Google Gemini (free tier)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Gemini API Key
+                  </label>
+                  <div className="flex gap-2 max-w-lg">
+                    <input
+                      type={showApiKey ? "text" : "password"}
+                      name="ai_api_key"
+                      value={settings.ai_api_key}
+                      onChange={handleInputChange}
+                      placeholder={
+                        settings.ai_api_key_set
+                          ? "Saved — leave blank to keep it"
+                          : "Paste your Gemini API key"
+                      }
+                      className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey((prev) => !prev)}
+                      className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
+                    >
+                      {showApiKey ? "Hide" : "Show"}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {settings.ai_api_key_set
+                      ? "A key is already saved. "
+                      : ""}
+                    Get a free key from{" "}
+                    <a
+                      href="https://aistudio.google.com/apikey"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      Google AI Studio
+                    </a>
+                    .
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Daily Request Limit
+                  </label>
+                  <input
+                    type="number"
+                    name="ai_daily_limit"
+                    min="1"
+                    max="100000"
+                    value={settings.ai_daily_limit}
+                    onChange={handleInputChange}
+                    className="w-32 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Once this many AI requests are used today, new posts fall back
+                    to free keyword analysis until the count resets at midnight.
+                  </p>
+                </div>
+
+                {aiUsage && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex justify-between text-sm text-blue-800 mb-2">
+                      <span>Today&apos;s AI usage</span>
+                      <span>
+                        {aiUsage.used} / {aiUsage.limit} requests
+                      </span>
+                    </div>
+                    <div className="w-full bg-blue-100 rounded-full h-2">
+                      <div
+                        className="bg-blue-600 h-2 rounded-full"
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            (aiUsage.used / Math.max(1, aiUsage.limit)) * 100
+                          )}%`,
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
-        </div>
+        )}
 
         {message.text && (
           <div
@@ -194,9 +369,8 @@ const Settings = () => {
         </h2>
         <p className="text-gray-600">
           This plugin analyzes the sentiment of your WordPress posts based on
-          the keywords you define. Posts are analyzed for positive, negative, or
-          neutral sentiment based on the frequency of matches with your defined
-          keyword lists.
+          the keywords you define, or optionally a free AI model. Posts are
+          analyzed for positive, negative, or neutral sentiment.
         </p>
       </div>
     </div>
