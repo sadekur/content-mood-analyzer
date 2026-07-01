@@ -61,6 +61,30 @@ function cma_get_setting( $key, $default = '' ) {
 }
 
 /**
+ * Post types sentiment analysis applies to. Always at least `post` - an
+ * empty/invalid saved value falls back to it rather than silently analyzing
+ * nothing.
+ *
+ * @return string[]
+ */
+function cma_get_enabled_post_types() {
+    $types = cma_get_setting( 'enabled_post_types', array( 'post' ) );
+
+    if ( ! is_array( $types ) || empty( $types ) ) {
+        return array( 'post' );
+    }
+
+    return $types;
+}
+
+/**
+ * Whether a given post type is enabled for sentiment analysis.
+ */
+function cma_is_post_type_enabled( $post_type ) {
+    return in_array( $post_type, cma_get_enabled_post_types(), true );
+}
+
+/**
  * One-time migration of the settings option from its old name
  * (sentiment_analyzer_settings) to the current one (content_mood_analyzer_settings),
  * so sites that saved settings before the rename don't lose them.
