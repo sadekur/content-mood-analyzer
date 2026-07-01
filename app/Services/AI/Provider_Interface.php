@@ -4,22 +4,25 @@ namespace Content_Mood\Services\AI;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Interface for pluggable AI sentiment providers.
+ * Interface for pluggable AI keyword-research providers.
  *
- * Implementations call an external LLM API and return a structured
- * sentiment result, or null if the call failed or produced no usable
- * result. Callers must be able to fall back to the keyword-based
- * analysis whenever null is returned.
+ * Implementations call an external LLM API to research and generate a
+ * keyword list for one sentiment category, given a free-text description of
+ * the domain/context (e.g. "Customer & Product Reviews"). Used only to help
+ * populate the Positive/Negative/Neutral Keywords fields - it does not
+ * classify posts directly, that's always done by counting keywords.
  */
 interface Provider_Interface {
 
 	/**
-	 * Classify the sentiment of a piece of content.
+	 * Generate a keyword list for one sentiment category.
 	 *
-	 * @param string $title   Post title.
-	 * @param string $content Post content (HTML allowed, provider is responsible for stripping it).
+	 * @param string $sentiment       One of 'positive', 'negative', 'neutral'.
+	 * @param string $category_prompt Free-text description of the domain/context
+	 *                                to research keywords for, e.g.
+	 *                                "Financial & Economic Context".
 	 *
-	 * @return array{sentiment:string,confidence:?float}|null
+	 * @return string[]|null List of keyword strings, or null on failure.
 	 */
-	public function analyze( $title, $content );
+	public function generate_keywords( $sentiment, $category_prompt );
 }
