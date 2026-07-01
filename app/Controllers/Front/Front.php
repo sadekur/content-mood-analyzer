@@ -28,8 +28,8 @@ class Front {
         if ( wp_is_post_revision( $post_id ) ) {
             return;
         }
-        // @todo Add support for custom post types
-        if ($post->post_type !== 'post') {
+
+        if ( ! cma_is_post_type_enabled( $post->post_type ) ) {
             return;
         }
 
