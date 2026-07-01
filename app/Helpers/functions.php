@@ -172,11 +172,12 @@ function cma_get_ai_provider() {
     }
 
     $provider = cma_get_setting( 'ai_provider', 'gemini' );
+    $model    = cma_get_setting( 'ai_model', 'gemini-2.0-flash' );
 
     switch ( $provider ) {
         case 'gemini':
         default:
-            return new \Content_Mood\Services\AI\Gemini_Provider( $api_key );
+            return new \Content_Mood\Services\AI\Gemini_Provider( $api_key, $model );
     }
 }
 
