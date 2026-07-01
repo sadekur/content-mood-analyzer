@@ -83,6 +83,7 @@ const Settings = () => {
       if (result.success) {
         setSettings((prev) => ({ ...prev, ...result.settings }));
         setIsEditingApiKey(!result.settings.ai_api_key_set);
+        setAvailablePostTypes(result.available_post_types || []);
         if (result.ai_usage) {
           setAiUsage(result.ai_usage);
         }
