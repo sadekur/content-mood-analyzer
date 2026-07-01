@@ -39,15 +39,15 @@ const App = () => {
         switch (activeTab) {
             case "":
             case "/":
-                return <Overview page={page} />;
+                return <Overview />;
             case "/dashboard":
-                return <Dashboard page={page} />;
+                return <Dashboard />;
             case "/sentiments":
                 return <Sentiments page={page} />;
             case "/settings":
                 return <Settings />;
             default:
-                return <Overview page={page} />;
+                return <Overview />;
         }
     };
 
