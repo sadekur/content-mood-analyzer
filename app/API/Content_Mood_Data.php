@@ -233,7 +233,7 @@ class Content_Mood_Data {
          * @param array $formatted_posts The formatted posts.
          * @param \WP_REST_Request $request The request object.
          */
-        $formatted_posts = apply_filters( 'sentiment_analyzer_list_posts', $formatted_posts, $request );
+        $formatted_posts = apply_filters( 'content_mood_analyzer_list_posts', $formatted_posts, $request );
 
         return rest_ensure_response(
             array(
