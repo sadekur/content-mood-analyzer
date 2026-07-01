@@ -1,13 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Doughnut } from "react-chartjs-2";
+import {
+    Chart as ChartJS,
+    ArcElement,
+    LineElement,
+    PointElement,
+    CategoryScale,
+    LinearScale,
+    Tooltip,
+    Legend,
+} from "chart.js";
+import { Doughnut, Line } from "react-chartjs-2";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(ArcElement, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend);
+
+const TREND_RANGES = [
+    { value: 30, label: "30 days" },
+    { value: 90, label: "90 days" },
+];
 
 const Dashboard = () => {
     const [counts, setCounts] = useState({ all: 0, positive: 0, neutral: 0, negative: 0 });
     const [recentPosts, setRecentPosts] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const [trendDays, setTrendDays] = useState(30);
+    const [trend, setTrend] = useState(null);
+    const [trendLoading, setTrendLoading] = useState(true);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -35,6 +53,29 @@ const Dashboard = () => {
         fetchDashboardData();
     }, []);
 
+    useEffect(() => {
+        const fetchTrend = async () => {
+            setTrendLoading(true);
+            try {
+                const response = await fetch(
+                    `${CONTENT_MOOD_ANALYZER?.apiUrl}/trend?days=${trendDays}`,
+                    { headers: { "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce } }
+                );
+                const data = await response.json();
+
+                if (data.success) {
+                    setTrend(data.trend);
+                }
+            } catch (error) {
+                console.error("Error fetching sentiment trend:", error);
+            } finally {
+                setTrendLoading(false);
+            }
+        };
+
+        fetchTrend();
+    }, [trendDays]);
+
     const getSentimentBadgeClass = (sentiment) => {
         const classes = {
             positive: "bg-green-100 text-green-800",
@@ -57,6 +98,47 @@ const Dashboard = () => {
 
     const hasAnalyzedPosts = (counts.all || 0) > 0;
 
+    const trendHasData =
+        trend && [...trend.positive, ...trend.negative, ...trend.neutral].some((n) => n > 0);
+
+    const trendChartData = trend && {
+        labels: trend.labels,
+        datasets: [
+            {
+                label: "Positive",
+                data: trend.positive,
+                borderColor: "#16a34a",
+                backgroundColor: "#16a34a",
+                tension: 0.3,
+            },
+            {
+                label: "Negative",
+                data: trend.negative,
+                borderColor: "#dc2626",
+                backgroundColor: "#dc2626",
+                tension: 0.3,
+            },
+            {
+                label: "Neutral",
+                data: trend.neutral,
+                borderColor: "#ca8a04",
+                backgroundColor: "#ca8a04",
+                tension: 0.3,
+            },
+        ],
+    };
+
+    const trendChartOptions = {
+        responsive: true,
+        interaction: { mode: "index", intersect: false },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { precision: 0 },
+            },
+        },
+    };
+
     return (
         <div className="max-w-5xl mx-auto space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
@@ -77,6 +159,40 @@ const Dashboard = () => {
                     <p className="text-center text-gray-600 py-12">
                         No posts have been analyzed yet. Run a bulk analysis from the Settings page to
                         populate this chart.
+                    </p>
+                )}
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-gray-900">Sentiment Trend</h2>
+                    <div className="flex gap-2">
+                        {TREND_RANGES.map((range) => (
+                            <button
+                                key={range.value}
+                                type="button"
+                                onClick={() => setTrendDays(range.value)}
+                                className={`px-3 py-1 text-sm rounded-md border ${
+                                    trendDays === range.value
+                                        ? "bg-blue-600 text-white border-blue-600"
+                                        : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+                                }`}
+                            >
+                                {range.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {trendLoading ? (
+                    <div className="flex justify-center items-center py-12">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                    </div>
+                ) : trendHasData ? (
+                    <Line data={trendChartData} options={trendChartOptions} />
+                ) : (
+                    <p className="text-center text-gray-600 py-12">
+                        No posts published in the last {trendDays} days have a sentiment yet.
                     </p>
                 )}
             </div>
