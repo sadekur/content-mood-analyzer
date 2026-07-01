@@ -41,7 +41,7 @@ class Front {
      * Add sentiment badge to content on singular post views
      */
     public function add_sentiment_badge($content) {
-        if (!is_singular('post')) {
+        if (!is_singular() || !cma_is_post_type_enabled(get_post_type())) {
             return $content;
         }
 
