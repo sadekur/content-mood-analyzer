@@ -100,9 +100,16 @@ const Dashboard = () => {
                                         </a>
                                         <div className="text-xs text-gray-500 mt-1">{post.date}</div>
                                     </div>
-                                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getSentimentBadgeClass(post.sentiment)}`}>
-                                        {post.sentiment ? post.sentiment.charAt(0).toUpperCase() + post.sentiment.slice(1) : "—"}
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getSentimentBadgeClass(post.sentiment)}`}>
+                                            {post.sentiment ? post.sentiment.charAt(0).toUpperCase() + post.sentiment.slice(1) : "—"}
+                                        </span>
+                                        {post.source && (
+                                            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
+                                                {post.source === 'ai' ? '🤖 AI' : 'Keyword'}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
                         </div>
