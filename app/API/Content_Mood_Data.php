@@ -202,6 +202,24 @@ class Content_Mood_Data {
     }
 
     /**
+     * Daily positive/negative/neutral counts for the last 30 or 90 days, for
+     * the Dashboard trend chart.
+     */
+    public function get_trend( $request ) {
+        $days = (int) $request->get_param( 'days' );
+
+        if ( ! in_array( $days, array( 30, 90 ), true ) ) {
+            $days = 30;
+        }
+
+        return rest_ensure_response( array(
+            'success' => true,
+            'days'    => $days,
+            'trend'   => Content_Mood_Data_Model::get_sentiment_trend( $days ),
+        ) );
+    }
+
+    /**
      * Test an AI API key/model with one real keyword-research request, so a
      * bad key or an unavailable model is caught immediately instead of
      * discovered while trying to generate real keyword suggestions. Uses the
