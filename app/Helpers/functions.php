@@ -77,29 +77,14 @@ function cma_migrate_legacy_settings_option() {
 }
 
 /**
- * Perform sentiment analysis on a post.
+ * Perform sentiment analysis on a post by counting keyword matches.
  *
- * Tries the AI provider first (when enabled, a key is configured, and the
- * daily quota isn't exhausted). Any AI failure - disabled, no key, quota
- * hit, network error, unparsable response - falls back to the free
- * keyword-based method so a post always ends up with a sentiment.
+ * The Positive/Negative/Neutral keyword lists can themselves be researched
+ * and generated with AI (see cma_get_ai_provider() / the /ai/generate-keywords
+ * REST route), but the actual per-post analysis is always this free,
+ * instant keyword count - no AI call happens here.
  */
-function cma_perform_sentiment_analysis( $post, $allow_ai = true ) {
-    $ai_result = $allow_ai ? cma_maybe_analyze_with_ai( $post ) : null;
-
-    if ( null !== $ai_result ) {
-        $sentiment = $ai_result['sentiment'];
-
-        update_post_meta( $post->ID, '_post_sentiment', sanitize_text_field( $sentiment ) );
-        update_post_meta( $post->ID, '_post_sentiment_source', 'ai' );
-        update_post_meta( $post->ID, '_post_sentiment_confidence', $ai_result['confidence'] );
-        delete_post_meta( $post->ID, '_post_sentiment_counts' );
-        update_post_meta( $post->ID, '_post_sentiment_analyzed_at', current_time( 'mysql' ) );
-        delete_transient( 'cma_posts_' . $sentiment );
-
-        return $sentiment;
-    }
-
+function cma_perform_sentiment_analysis( $post ) {
     $content = strtolower( $post->post_content . ' ' . $post->post_title );
 
     $positive_keywords = cma_get_keywords_array( cma_get_setting( 'positive_keywords', '' ) );
@@ -119,8 +104,6 @@ function cma_perform_sentiment_analysis( $post, $allow_ai = true ) {
     }
 
     update_post_meta( $post->ID, '_post_sentiment', sanitize_text_field( $sentiment ) );
-    update_post_meta( $post->ID, '_post_sentiment_source', 'keyword' );
-    delete_post_meta( $post->ID, '_post_sentiment_confidence' );
     update_post_meta( $post->ID, '_post_sentiment_counts', array(
         'positive' => $positive_count,
         'negative' => $negative_count,
@@ -133,36 +116,10 @@ function cma_perform_sentiment_analysis( $post, $allow_ai = true ) {
 }
 
 /**
- * Attempt AI-based analysis for a post.
- *
- * @return array{sentiment:string,confidence:?float}|null Null when AI
- *         analysis isn't enabled/available, so the caller should fall back
- *         to the keyword method.
- */
-function cma_maybe_analyze_with_ai( $post ) {
-    if ( ! cma_get_setting( 'ai_enabled', false ) ) {
-        return null;
-    }
-
-    if ( cma_ai_limit_reached() ) {
-        return null;
-    }
-
-    $provider = cma_get_ai_provider();
-
-    if ( ! $provider ) {
-        cma_ai_set_last_error( __( 'AI analysis is enabled but no API key is configured.', 'content-mood-analyzer' ) );
-        return null;
-    }
-
-    return $provider->analyze( $post->post_title, $post->post_content );
-}
-
-/**
- * Instantiate the configured AI provider, or null if none is usable.
- *
- * Only Gemini is supported today; the setting/interface already allow more
- * providers to be added without touching the analysis flow.
+ * Instantiate the configured AI keyword-research provider, or null if none
+ * is usable (no key configured). Only Gemini is supported today; the
+ * interface already allows more providers to be added without touching the
+ * REST endpoint that calls this.
  */
 function cma_get_ai_provider() {
     $api_key = cma_get_setting( 'ai_api_key', '' );
