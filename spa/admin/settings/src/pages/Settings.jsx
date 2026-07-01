@@ -23,6 +23,7 @@ const Settings = () => {
     badge_position: "top",
     ai_enabled: false,
     ai_provider: "gemini",
+    ai_model: "gemini-2.0-flash",
     ai_api_key: "",
     ai_api_key_set: false,
     ai_api_key_last4: "",
