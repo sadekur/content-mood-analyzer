@@ -347,6 +347,50 @@ const Settings = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Model
+                  </label>
+                  <select
+                    value={
+                      MODEL_OPTIONS.some((m) => m.value === settings.ai_model)
+                        ? settings.ai_model
+                        : "custom"
+                    }
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setSettings((prev) => ({
+                        ...prev,
+                        ai_model: value === "custom" ? "" : value,
+                      }));
+                    }}
+                    className="w-full md:w-64 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    {MODEL_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                    <option value="custom">Custom model ID…</option>
+                  </select>
+                  {!MODEL_OPTIONS.some((m) => m.value === settings.ai_model) && (
+                    <input
+                      type="text"
+                      value={settings.ai_model}
+                      onChange={(e) =>
+                        setSettings((prev) => ({ ...prev, ai_model: e.target.value }))
+                      }
+                      placeholder="e.g. gemini-1.5-flash-8b"
+                      className="mt-2 w-full md:w-64 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  )}
+                  <p className="text-xs text-gray-500 mt-1">
+                    If a key returns a quota error on one model, try another —
+                    free-tier quota is sometimes allocated per model rather than
+                    per key.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Gemini API Key
                   </label>
 
