@@ -18,9 +18,11 @@ const Settings = () => {
     ai_provider: "gemini",
     ai_api_key: "",
     ai_api_key_set: false,
+    ai_api_key_last4: "",
     ai_daily_limit: 100,
   });
   const [aiUsage, setAiUsage] = useState(null);
+  const [isEditingApiKey, setIsEditingApiKey] = useState(false);
   const [showApiKey, setShowApiKey] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
@@ -40,6 +42,7 @@ const Settings = () => {
       const result = await response.json();
       if (result.success) {
         setSettings((prev) => ({ ...prev, ...result.settings }));
+        setIsEditingApiKey(!result.settings.ai_api_key_set);
         if (result.ai_usage) {
           setAiUsage(result.ai_usage);
         }
@@ -75,6 +78,7 @@ const Settings = () => {
 
       if (result.success) {
         setSettings((prev) => ({ ...prev, ...result.settings }));
+        setIsEditingApiKey(!result.settings.ai_api_key_set);
         if (result.ai_usage) {
           setAiUsage(result.ai_usage);
         }
@@ -94,6 +98,50 @@ const Settings = () => {
       setMessage({
         type: "error",
         text: "An error occurred while saving settings.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRemoveApiKey = async () => {
+    if (
+      !window.confirm(
+        "Remove the saved API key? AI analysis will fall back to keywords until you add a new one."
+      )
+    ) {
+      return;
+    }
+
+    setLoading(true);
+    setMessage({ type: "", text: "" });
+
+    try {
+      const response = await fetch(CONTENT_MOOD_ANALYZER?.apiUrl + "/settings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce,
+        },
+        body: JSON.stringify({ ai_api_key_remove: true }),
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        setSettings((prev) => ({ ...prev, ...result.settings, ai_api_key: "" }));
+        setIsEditingApiKey(true);
+        setMessage({ type: "success", text: "API key removed." });
+      } else {
+        setMessage({
+          type: "error",
+          text: result.message || "Failed to remove the API key.",
+        });
+      }
+    } catch (error) {
+      console.error("Error removing API key:", error);
+      setMessage({
+        type: "error",
+        text: "An error occurred while removing the API key.",
       });
     } finally {
       setLoading(false);
@@ -133,8 +181,10 @@ const Settings = () => {
                 Keyword Settings
               </h2>
               <p className="text-gray-600 text-sm mb-4">
-                Enter keywords separated by commas. These will be used to determine
-                sentiment of your content.
+                Enter keywords separated by commas. These are always used when AI
+                analysis (in the AI Analysis tab) is disabled, and automatically as
+                a fallback whenever AI is unavailable — no key set, daily limit
+                reached, or a request fails.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -205,30 +255,30 @@ const Settings = () => {
 
         {activeTab === "ai" && (
           <div className="mb-6 space-y-6">
-            <div className="flex items-start justify-between bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-700 mb-1">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center justify-between gap-4">
+                <h2 className="text-lg font-semibold text-gray-700">
                   AI-Powered Analysis
                 </h2>
-                <p className="text-gray-600 text-sm">
-                  Use a free AI model to classify sentiment instead of counting
-                  keywords. Falls back to keyword analysis automatically once the
-                  daily request limit below is reached, so posts always get a
-                  sentiment.
-                </p>
+                <label className="inline-flex items-center cursor-pointer shrink-0">
+                  <input
+                    type="checkbox"
+                    name="ai_enabled"
+                    checked={!!settings.ai_enabled}
+                    onChange={handleInputChange}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 relative transition-colors">
+                    <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+                  </div>
+                </label>
               </div>
-              <label className="inline-flex items-center cursor-pointer ml-4 shrink-0">
-                <input
-                  type="checkbox"
-                  name="ai_enabled"
-                  checked={!!settings.ai_enabled}
-                  onChange={handleInputChange}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 relative transition-colors">
-                  <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
-                </div>
-              </label>
+              <p className="text-gray-600 text-sm mt-2">
+                Use a free AI model to classify sentiment instead of counting
+                keywords. Falls back to keyword analysis automatically once the
+                daily request limit below is reached, so posts always get a
+                sentiment.
+              </p>
             </div>
 
             {settings.ai_enabled && (
@@ -251,31 +301,64 @@ const Settings = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Gemini API Key
                   </label>
-                  <div className="flex gap-2 max-w-lg">
-                    <input
-                      type={showApiKey ? "text" : "password"}
-                      name="ai_api_key"
-                      value={settings.ai_api_key}
-                      onChange={handleInputChange}
-                      placeholder={
-                        settings.ai_api_key_set
-                          ? "Saved — leave blank to keep it"
-                          : "Paste your Gemini API key"
-                      }
-                      className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowApiKey((prev) => !prev)}
-                      className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
-                    >
-                      {showApiKey ? "Hide" : "Show"}
-                    </button>
-                  </div>
+
+                  {!isEditingApiKey && settings.ai_api_key_set ? (
+                    <div className="flex gap-2 max-w-lg">
+                      <div className="flex-1 p-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 font-mono text-sm">
+                        •••• •••• •••• {settings.ai_api_key_last4}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSettings((prev) => ({ ...prev, ai_api_key: "" }));
+                          setIsEditingApiKey(true);
+                        }}
+                        className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
+                      >
+                        Change
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleRemoveApiKey}
+                        disabled={loading}
+                        className="px-3 py-2 text-sm border border-red-300 rounded-md text-red-600 hover:bg-red-50 disabled:opacity-50"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2 max-w-lg">
+                      <input
+                        type={showApiKey ? "text" : "password"}
+                        name="ai_api_key"
+                        value={settings.ai_api_key}
+                        onChange={handleInputChange}
+                        placeholder="Paste your Gemini API key"
+                        className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowApiKey((prev) => !prev)}
+                        className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
+                      >
+                        {showApiKey ? "Hide" : "Show"}
+                      </button>
+                      {settings.ai_api_key_set && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSettings((prev) => ({ ...prev, ai_api_key: "" }));
+                            setIsEditingApiKey(false);
+                          }}
+                          className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </div>
+                  )}
+
                   <p className="text-xs text-gray-500 mt-1">
-                    {settings.ai_api_key_set
-                      ? "A key is already saved. "
-                      : ""}
                     Get a free key from{" "}
                     <a
                       href="https://aistudio.google.com/apikey"
@@ -329,6 +412,14 @@ const Settings = () => {
                     </div>
                   </div>
                 )}
+
+                <p className="text-xs text-gray-500">
+                  To confirm AI analysis is actually running: save a key here, then
+                  edit and update a post (or run Bulk Analysis below). Check the
+                  usage counter above — it increments on every AI request — and
+                  look for the "AI" tag next to posts in the All Sentiments and
+                  Dashboard pages (posts analyzed by keywords are tagged "Keyword").
+                </p>
               </>
             )}
           </div>
