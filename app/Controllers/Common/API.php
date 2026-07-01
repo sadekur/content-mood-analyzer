@@ -50,9 +50,6 @@ class API {
                             return in_array( $param, array( 'top', 'bottom', 'none' ) );
                         }
                     ),
-                    'ai_enabled' => array(
-                        'sanitize_callback' => 'rest_sanitize_boolean',
-                    ),
                     'ai_provider' => array(
                         'sanitize_callback' => 'sanitize_text_field',
                         'validate_callback' => function( $param ) {
