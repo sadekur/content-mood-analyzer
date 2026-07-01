@@ -374,14 +374,18 @@ class Content_Mood_Data {
 
         $formatted_posts = array_map(
             function( $post ) {
+                $post_type_object = get_post_type_object( $post->post_type );
+
                 return array(
-                    'id'        => $post->ID,
-                    'title'     => get_the_title( $post->ID ),
-                    'excerpt'   => get_the_excerpt( $post->ID ),
-                    'permalink' => get_permalink( $post->ID ),
-                    'date'      => get_the_date( '', $post->ID ),
-                    'sentiment' => get_post_meta( $post->ID, '_post_sentiment', true ),
-                    'author'    => get_the_author_meta( 'display_name', $post->post_author ),
+                    'id'              => $post->ID,
+                    'title'           => get_the_title( $post->ID ),
+                    'excerpt'         => get_the_excerpt( $post->ID ),
+                    'permalink'       => get_permalink( $post->ID ),
+                    'date'            => get_the_date( '', $post->ID ),
+                    'sentiment'       => get_post_meta( $post->ID, '_post_sentiment', true ),
+                    'post_type'       => $post->post_type,
+                    'post_type_label' => $post_type_object ? $post_type_object->labels->singular_name : $post->post_type,
+                    'author'          => get_the_author_meta( 'display_name', $post->post_author ),
                 );
             },
             $result['posts']
