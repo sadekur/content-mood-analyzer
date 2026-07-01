@@ -123,6 +123,54 @@ class Content_Mood_Model {
     }
 
     /**
+     * Get daily positive/negative/neutral counts (by post publish date) for
+     * the last N days, zero-filled so days with no published posts still
+     * appear in the series.
+     *
+     * @param int $days
+     * @return array{labels:string[],positive:int[],negative:int[],neutral:int[]}
+     */
+    public static function get_sentiment_trend( $days = 30 ) {
+        global $wpdb;
+
+        $days      = max( 1, (int) $days );
+        $from_date = gmdate( 'Y-m-d 00:00:00', strtotime( "-{$days} days" ) );
+
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT DATE(p.post_date) as day, pm.meta_value as sentiment, COUNT(*) as cnt
+                FROM {$wpdb->posts} p
+                INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = '_post_sentiment'
+                WHERE p.post_type = 'post'
+                AND p.post_status = 'publish'
+                AND p.post_date >= %s
+                GROUP BY day, sentiment
+                ORDER BY day ASC",
+                $from_date
+            )
+        );
+
+        $series = array();
+        for ( $i = $days - 1; $i >= 0; $i-- ) {
+            $day             = gmdate( 'Y-m-d', strtotime( "-{$i} days" ) );
+            $series[ $day ]  = array( 'positive' => 0, 'negative' => 0, 'neutral' => 0 );
+        }
+
+        foreach ( $rows as $row ) {
+            if ( isset( $series[ $row->day ][ $row->sentiment ] ) ) {
+                $series[ $row->day ][ $row->sentiment ] = (int) $row->cnt;
+            }
+        }
+
+        return array(
+            'labels'   => array_keys( $series ),
+            'positive' => array_column( $series, 'positive' ),
+            'negative' => array_column( $series, 'negative' ),
+            'neutral'  => array_column( $series, 'neutral' ),
+        );
+    }
+
+    /**
      * Get a single post by ID
      *
      * @param int $post_id
