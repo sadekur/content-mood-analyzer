@@ -96,10 +96,6 @@ class API {
             ),
         ));
 
-			'callback'   => array( new Content_Mood_Data(), 'bulk_analyze' ),
-            'permission_callback' => array($this, 'check_permission'),
-        ));
-
         // Get post sentiment
         register_rest_route( $this->namespace, '/sentiment/(?P<id>\d+)', array(
             'methods' => 'GET',
