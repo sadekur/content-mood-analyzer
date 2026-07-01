@@ -233,7 +233,14 @@ const Settings = () => {
               "Content-Type": "application/json",
               "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce,
             },
-            body: JSON.stringify({ sentiment: field.key, prompt: keywordPrompts[field.key] }),
+            // Send the currently-selected model, not just whatever was last
+            // saved, so switching models in the dropdown takes effect
+            // immediately without requiring a Save first.
+            body: JSON.stringify({
+              sentiment: field.key,
+              prompt: keywordPrompts[field.key],
+              model: settings.ai_model,
+            }),
           });
           const result = await response.json();
 
