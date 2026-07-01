@@ -9,7 +9,24 @@ class Menu {
 
     public function __construct() {
         $this->action( 'admin_menu', [ $this, 'register_menus' ] );
+        $this->action( 'in_admin_header', [ $this, 'hide_unrelated_admin_notices' ] );
         // $this->action( 'admin_enqueue_scripts', [ $this, 'enqueue_menu_script' ] );
+    }
+
+    /**
+     * Suppress WordPress core and other plugins' admin notices on our
+     * screens so they don't clutter the plugin's own UI. All four submenus
+     * share the same top-level screen (they only differ by URL hash), so
+     * one screen id check covers Overview, Dashboard, All Sentiments, and
+     * Settings.
+     */
+    public function hide_unrelated_admin_notices() {
+        $screen = get_current_screen();
+
+        if ( $screen && 'toplevel_page_content-mood-analyzer' === $screen->id ) {
+            remove_all_actions( 'admin_notices' );
+            remove_all_actions( 'all_admin_notices' );
+        }
     }
 
     public function register_menus() {
