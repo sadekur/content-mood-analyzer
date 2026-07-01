@@ -66,7 +66,7 @@ const BulkAnalyzer = () => {
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <p className="text-sm text-gray-600 mb-6">
-          Run sentiment analysis on <strong>all published posts at once</strong> using your AI provider (if enabled) or your current keyword rules.
+          Run sentiment analysis on <strong>all published posts at once</strong> using your current keyword rules.
         </p>
 
         {/* Results Summary */}
@@ -96,19 +96,6 @@ const BulkAnalyzer = () => {
             {results.total && (
               <p className="text-center text-sm text-gray-600 mt-4">
                 Total analyzed: <strong>{results.total}</strong> posts
-              </p>
-            )}
-            {typeof results.ai_analyzed === "number" && (
-              <p className="text-center text-xs text-gray-500 mt-1">
-                {results.ai_analyzed} via AI, {results.keyword_analyzed} via keywords
-                {results.ai_usage &&
-                  ` (${results.ai_usage.remaining}/${results.ai_usage.limit} AI requests left today)`}
-              </p>
-            )}
-            {results.ai_usage?.last_error && (
-              <p className="text-center text-xs text-red-600 mt-1">
-                ⚠️ AI requests are failing: {results.ai_usage.last_error} — posts above used the
-                keyword fallback instead.
               </p>
             )}
           </div>
