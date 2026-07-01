@@ -342,13 +342,22 @@ class Content_Mood_Data {
             'negative_keywords' => '',
             'neutral_keywords'  => '',
             'badge_position'    => 'top',
+            'ai_enabled'        => false,
+            'ai_provider'       => 'gemini',
+            'ai_api_key'        => '',
+            'ai_daily_limit'    => 100,
         );
 
         $settings = wp_parse_args( $settings, $defaults );
 
+        // Never send the stored key back to the browser - only whether one is set.
+        $settings['ai_api_key_set'] = ! empty( $settings['ai_api_key'] );
+        $settings['ai_api_key']     = '';
+
         return rest_ensure_response( array(
             'success' => true,
             'settings' => $settings,
+            'ai_usage' => cma_ai_get_usage_status(),
         ) );
     }
 }
