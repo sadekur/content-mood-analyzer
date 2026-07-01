@@ -264,6 +264,7 @@ class Content_Mood_Data {
                     'permalink' => get_permalink( $post->ID ),
                     'date'      => get_the_date( '', $post->ID ),
                     'sentiment' => get_post_meta( $post->ID, '_post_sentiment', true ),
+                    'source'    => get_post_meta( $post->ID, '_post_sentiment_source', true ),
                     'author'    => get_the_author_meta( 'display_name', $post->post_author ),
                 );
             },
