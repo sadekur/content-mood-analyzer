@@ -48,10 +48,7 @@ class Front {
         $sentiment = get_post_meta($post->ID, '_post_sentiment', true);
 
         if (empty($sentiment)) {
-            // Public page view - keyword fallback only. Never call the AI
-            // provider here, or an anonymous visitor loading an unanalyzed
-            // post would add API latency to the page and burn the daily quota.
-            $sentiment = cma_perform_sentiment_analysis( $post, false );
+            $sentiment = cma_perform_sentiment_analysis( $post );
         }
 
         $settings = get_option('content_mood_analyzer_settings', array());
