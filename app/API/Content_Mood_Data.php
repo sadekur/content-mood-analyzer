@@ -351,14 +351,25 @@ class Content_Mood_Data {
 
         $settings = wp_parse_args( $settings, $defaults );
 
-        // Never send the stored key back to the browser - only whether one is set.
-        $settings['ai_api_key_set'] = ! empty( $settings['ai_api_key'] );
-        $settings['ai_api_key']     = '';
-
         return rest_ensure_response( array(
             'success' => true,
-            'settings' => $settings,
+            'settings' => $this->mask_ai_key( $settings ),
             'ai_usage' => cma_ai_get_usage_status(),
         ) );
+    }
+
+    /**
+     * Strip the raw API key out of a settings array before it's sent to the
+     * browser, replacing it with whether a key is set and its last 4
+     * characters (enough to recognize it, never enough to reuse it).
+     */
+    private function mask_ai_key( array $settings ) {
+        $key = isset( $settings['ai_api_key'] ) ? $settings['ai_api_key'] : '';
+
+        $settings['ai_api_key_set']   = '' !== $key;
+        $settings['ai_api_key_last4'] = '' !== $key ? substr( $key, -4 ) : '';
+        $settings['ai_api_key']       = '';
+
+        return $settings;
     }
 }
