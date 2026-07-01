@@ -60,7 +60,7 @@ const Settings = () => {
   const [testResult, setTestResult] = useState(null);
 
   const [keywordPrompts, setKeywordPrompts] = useState({ positive: "", negative: "", neutral: "" });
-  const [generating, setGenerating] = useState({ positive: false, negative: false, neutral: false });
+  const [generatingAll, setGeneratingAll] = useState(false);
   const [generateResult, setGenerateResult] = useState({ positive: null, negative: null, neutral: null });
 
   // Fetch current settings when component loads
