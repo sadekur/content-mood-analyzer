@@ -32,7 +32,7 @@ class Front {
             return;
         }
 
-        // Perform the analysis (editor-initiated save, so AI is allowed).
+        // Perform the analysis
         cma_perform_sentiment_analysis( $post );
     }
 
