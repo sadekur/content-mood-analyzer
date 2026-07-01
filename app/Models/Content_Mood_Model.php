@@ -26,7 +26,7 @@ class Content_Mood_Model {
         $to_date    = isset( $args['to_date'] ) ? trim( $args['to_date'] ) : null;
 
         $query_args = array(
-            'post_type'      => 'post',
+            'post_type'      => cma_get_enabled_post_types(),
             'post_status'    => 'publish',
             'posts_per_page' => $per_page,
             'offset'         => $offset,
