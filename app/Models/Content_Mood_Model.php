@@ -139,17 +139,20 @@ class Content_Mood_Model {
         $days      = max( 1, (int) $days );
         $from_date = gmdate( 'Y-m-d 00:00:00', strtotime( "-{$days} days" ) );
 
+        $post_types   = cma_get_enabled_post_types();
+        $placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
+
         $rows = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT DATE(p.post_date) as day, pm.meta_value as sentiment, COUNT(*) as cnt
                 FROM {$wpdb->posts} p
                 INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = '_post_sentiment'
-                WHERE p.post_type = 'post'
+                WHERE p.post_type IN ($placeholders)
                 AND p.post_status = 'publish'
                 AND p.post_date >= %s
                 GROUP BY day, sentiment
                 ORDER BY day ASC",
-                $from_date
+                array_merge( $post_types, array( $from_date ) )
             )
         );
 
