@@ -247,3 +247,167 @@ function cma_ai_get_last_error() {
 
     return $error ?: null;
 }
+
+/**
+ * Background bulk analysis.
+ *
+ * A single "Analyze all posts" click used to loop over every post inside one
+ * HTTP request - fine for a handful of posts, but a guaranteed timeout/memory
+ * exhaustion on a large site, with zero feedback while it ran. Instead this
+ * queues all matching post IDs once, then processes them a small batch at a
+ * time via WP-Cron, persisting progress in an option so the admin UI can poll
+ * and show a live progress bar across page reloads.
+ */
+
+/**
+ * Current bulk-analysis run state, defaulting to an empty/idle queue.
+ *
+ * @return array{status:string,total:int,processed:int,positive:int,negative:int,neutral:int,post_ids:int[],started_at:?string,finished_at:?string}
+ */
+function cma_get_bulk_queue() {
+    return get_option( 'content_mood_analyzer_bulk_queue', array(
+        'status'      => 'idle',
+        'total'       => 0,
+        'processed'   => 0,
+        'positive'    => 0,
+        'negative'    => 0,
+        'neutral'     => 0,
+        'post_ids'    => array(),
+        'started_at'  => null,
+        'finished_at' => null,
+    ) );
+}
+
+function cma_save_bulk_queue( $queue ) {
+    // autoload=false: this can hold thousands of post IDs while running,
+    // no reason to load it on every request via the alloptions cache.
+    update_option( 'content_mood_analyzer_bulk_queue', $queue, false );
+}
+
+/**
+ * Posts processed per WP-Cron batch. Kept small so every batch finishes
+ * comfortably within typical PHP execution time limits.
+ */
+function cma_bulk_batch_size() {
+    return max( 1, (int) apply_filters( 'content_mood_analyzer_bulk_batch_size', 20 ) );
+}
+
+/**
+ * Seconds to wait between batches. Spaced out a little rather than back to
+ * back, since each batch is nudged via a real (if lightweight) HTTP request
+ * to wp-cron.php - a large site shouldn't self-hammer its own server.
+ */
+function cma_bulk_batch_interval() {
+    return max( 1, (int) apply_filters( 'content_mood_analyzer_bulk_batch_interval', 5 ) );
+}
+
+/**
+ * Start a new background bulk-analysis run over every post of an enabled
+ * type. Returns false without doing anything if a run is already in
+ * progress, so a double-click (or two open tabs) can't start two overlapping
+ * queues.
+ */
+function cma_start_bulk_queue() {
+    $queue = cma_get_bulk_queue();
+
+    if ( 'running' === $queue['status'] ) {
+        return false;
+    }
+
+    $post_ids = get_posts( array(
+        'post_type'      => cma_get_enabled_post_types(),
+        'post_status'    => 'publish',
+        'posts_per_page' => -1,
+        'fields'         => 'ids',
+    ) );
+
+    cma_save_bulk_queue( array(
+        'status'      => 'running',
+        'total'       => count( $post_ids ),
+        'processed'   => 0,
+        'positive'    => 0,
+        'negative'    => 0,
+        'neutral'     => 0,
+        'post_ids'    => $post_ids,
+        'started_at'  => current_time( 'mysql' ),
+        'finished_at' => null,
+    ) );
+
+    cma_schedule_next_bulk_batch();
+
+    return true;
+}
+
+/**
+ * Cancel an in-progress run. Posts already processed keep the sentiment they
+ * were given; only the remaining queue is dropped.
+ */
+function cma_cancel_bulk_queue() {
+    $queue = cma_get_bulk_queue();
+
+    if ( 'running' !== $queue['status'] ) {
+        return;
+    }
+
+    $queue['status']      = 'cancelled';
+    $queue['finished_at'] = current_time( 'mysql' );
+    $queue['post_ids']    = array();
+
+    cma_save_bulk_queue( $queue );
+}
+
+/**
+ * Schedule the next batch and nudge WP-Cron so it runs soon, rather than
+ * waiting for the next organic site visit to notice the scheduled event.
+ */
+function cma_schedule_next_bulk_batch() {
+    if ( ! wp_next_scheduled( 'cma_process_bulk_batch' ) ) {
+        wp_schedule_single_event( time() + cma_bulk_batch_interval(), 'cma_process_bulk_batch' );
+    }
+
+    if ( function_exists( 'spawn_cron' ) ) {
+        spawn_cron();
+    }
+}
+
+/**
+ * WP-Cron callback: analyze one batch of posts, then either schedule the
+ * next batch or mark the run complete.
+ */
+function cma_process_bulk_batch() {
+    $queue = cma_get_bulk_queue();
+
+    if ( 'running' !== $queue['status'] || empty( $queue['post_ids'] ) ) {
+        return;
+    }
+
+    $batch = array_splice( $queue['post_ids'], 0, cma_bulk_batch_size() );
+
+    foreach ( $batch as $post_id ) {
+        $post = get_post( $post_id );
+
+        if ( ! $post ) {
+            continue;
+        }
+
+        $sentiment = cma_perform_sentiment_analysis( $post );
+
+        if ( isset( $queue[ $sentiment ] ) ) {
+            $queue[ $sentiment ]++;
+        }
+
+        $queue['processed']++;
+    }
+
+    if ( empty( $queue['post_ids'] ) ) {
+        $queue['status']      = 'complete';
+        $queue['finished_at'] = current_time( 'mysql' );
+        cma_save_bulk_queue( $queue );
+        cma_clear_sentiment_cache();
+        return;
+    }
+
+    cma_save_bulk_queue( $queue );
+    cma_schedule_next_bulk_batch();
+}
+add_action( 'cma_process_bulk_batch', 'cma_process_bulk_batch' );
