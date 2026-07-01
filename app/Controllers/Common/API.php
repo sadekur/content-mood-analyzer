@@ -62,6 +62,9 @@ class API {
                     'ai_api_key' => array(
                         'sanitize_callback' => 'sanitize_text_field',
                     ),
+                    'ai_api_key_remove' => array(
+                        'sanitize_callback' => 'rest_sanitize_boolean',
+                    ),
                     'ai_daily_limit' => array(
                         'sanitize_callback' => 'absint',
                         'validate_callback' => function( $param ) {
