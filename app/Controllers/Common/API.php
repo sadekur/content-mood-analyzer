@@ -59,6 +59,9 @@ class API {
                             return in_array( $param, array( 'gemini' ), true );
                         }
                     ),
+                    'ai_model' => array(
+                        'sanitize_callback' => 'sanitize_text_field',
+                    ),
                     'ai_api_key' => array(
                         'sanitize_callback' => 'sanitize_text_field',
                     ),
