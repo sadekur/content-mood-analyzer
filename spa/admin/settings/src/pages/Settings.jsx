@@ -14,6 +14,30 @@ const MODEL_OPTIONS = [
   { value: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
 ];
 
+const KEYWORD_FIELDS = [
+  {
+    key: "positive",
+    settingKey: "positive_keywords",
+    label: "Positive Keywords",
+    placeholder: "e.g., good, great, excellent, wonderful",
+    promptPlaceholder: "e.g. Customer & Product Reviews",
+  },
+  {
+    key: "negative",
+    settingKey: "negative_keywords",
+    label: "Negative Keywords",
+    placeholder: "e.g., bad, terrible, awful, poor",
+    promptPlaceholder: "e.g. Financial & Economic Context",
+  },
+  {
+    key: "neutral",
+    settingKey: "neutral_keywords",
+    label: "Neutral Keywords",
+    placeholder: "e.g., okay, fine, average, normal",
+    promptPlaceholder: "e.g. Weather & Nature",
+  },
+];
+
 const Settings = () => {
   const [activeTab, setActiveTab] = useState("general");
   const [settings, setSettings] = useState({
@@ -21,7 +45,6 @@ const Settings = () => {
     negative_keywords: "",
     neutral_keywords: "",
     badge_position: "top",
-    ai_enabled: false,
     ai_provider: "gemini",
     ai_model: "gemini-2.0-flash",
     ai_api_key: "",
@@ -36,6 +59,10 @@ const Settings = () => {
   const [message, setMessage] = useState({ type: "", text: "" });
   const [testingKey, setTestingKey] = useState(false);
   const [testResult, setTestResult] = useState(null);
+
+  const [keywordPrompts, setKeywordPrompts] = useState({ positive: "", negative: "", neutral: "" });
+  const [generating, setGenerating] = useState({ positive: false, negative: false, neutral: false });
+  const [generateResult, setGenerateResult] = useState({ positive: null, negative: null, neutral: null });
 
   // Fetch current settings when component loads
   useEffect(() => {
@@ -150,7 +177,7 @@ const Settings = () => {
   const handleRemoveApiKey = async () => {
     if (
       !window.confirm(
-        "Remove the saved API key? AI analysis will fall back to keywords until you add a new one."
+        "Remove the saved API key? You won't be able to generate AI keyword suggestions until you add a new one."
       )
     ) {
       return;
@@ -191,6 +218,48 @@ const Settings = () => {
     }
   };
 
+  const handleGenerateKeywords = async (sentiment, settingKey) => {
+    setGenerating((prev) => ({ ...prev, [sentiment]: true }));
+    setGenerateResult((prev) => ({ ...prev, [sentiment]: null }));
+
+    try {
+      const response = await fetch(CONTENT_MOOD_ANALYZER?.apiUrl + "/ai/generate-keywords", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce,
+        },
+        body: JSON.stringify({ sentiment, prompt: keywordPrompts[sentiment] }),
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        setSettings((prev) => ({ ...prev, [settingKey]: result.keywords }));
+        setGenerateResult((prev) => ({
+          ...prev,
+          [sentiment]: { success: true, message: "Keywords generated below — review, edit, then Save." },
+        }));
+      } else {
+        setGenerateResult((prev) => ({
+          ...prev,
+          [sentiment]: { success: false, message: result.message || "Failed to generate keywords." },
+        }));
+      }
+
+      if (result.ai_usage) {
+        setAiUsage(result.ai_usage);
+      }
+    } catch (error) {
+      console.error("Error generating keywords:", error);
+      setGenerateResult((prev) => ({
+        ...prev,
+        [sentiment]: { success: false, message: "An error occurred while generating keywords." },
+      }));
+    } finally {
+      setGenerating((prev) => ({ ...prev, [sentiment]: false }));
+    }
+  };
+
   return (
     <div className="content-mood-analyzer-container max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">
@@ -224,52 +293,66 @@ const Settings = () => {
                 Keyword Settings
               </h2>
               <p className="text-gray-600 text-sm mb-4">
-                Enter keywords separated by commas. These are always used when AI
-                analysis (in the AI Analysis tab) is disabled, and automatically as
-                a fallback whenever AI is unavailable — no key set, daily limit
-                reached, or a request fails.
+                Enter keywords separated by commas — these are what sentiment
+                analysis counts against every post. Or describe a category below
+                each field (e.g. "Customer & Product Reviews", "Financial &
+                Economic Context") and let AI research and fill in a keyword list
+                for you.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Positive Keywords
-                  </label>
-                  <textarea
-                    name="positive_keywords"
-                    value={settings.positive_keywords}
-                    onChange={handleInputChange}
-                    placeholder="e.g., good, great, excellent, wonderful"
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 h-32"
-                  />
-                </div>
+                {KEYWORD_FIELDS.map((field) => (
+                  <div key={field.key}>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {field.label}
+                    </label>
+                    <textarea
+                      name={field.settingKey}
+                      value={settings[field.settingKey]}
+                      onChange={handleInputChange}
+                      placeholder={field.placeholder}
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 h-32"
+                    />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Negative Keywords
-                  </label>
-                  <textarea
-                    name="negative_keywords"
-                    value={settings.negative_keywords}
-                    onChange={handleInputChange}
-                    placeholder="e.g., bad, terrible, awful, poor"
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 h-32"
-                  />
-                </div>
+                    <div className="mt-2 flex gap-2">
+                      <input
+                        type="text"
+                        value={keywordPrompts[field.key]}
+                        onChange={(e) =>
+                          setKeywordPrompts((prev) => ({ ...prev, [field.key]: e.target.value }))
+                        }
+                        placeholder={field.promptPlaceholder}
+                        className="flex-1 min-w-0 p-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleGenerateKeywords(field.key, field.settingKey)}
+                        disabled={generating[field.key]}
+                        className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50 whitespace-nowrap"
+                      >
+                        {generating[field.key] ? "Generating…" : "✨ Generate"}
+                      </button>
+                    </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Neutral Keywords
-                  </label>
-                  <textarea
-                    name="neutral_keywords"
-                    value={settings.neutral_keywords}
-                    onChange={handleInputChange}
-                    placeholder="e.g., okay, fine, average, normal"
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 h-32"
-                  />
-                </div>
+                    {generateResult[field.key] && (
+                      <p
+                        className={`text-xs mt-1 ${
+                          generateResult[field.key].success ? "text-green-700" : "text-red-700"
+                        }`}
+                      >
+                        {generateResult[field.key].success ? "✅ " : "❌ "}
+                        {generateResult[field.key].message}
+                      </p>
+                    )}
+                  </div>
+                ))}
               </div>
+
+              <p className="text-xs text-gray-500 mt-3">
+                Generating requires a Gemini API key — add one in the AI Analysis
+                tab. Each generate click uses one request from your daily AI
+                limit.
+              </p>
             </div>
 
             <div className="mb-6">
@@ -299,260 +382,225 @@ const Settings = () => {
         {activeTab === "ai" && (
           <div className="mb-6 space-y-6">
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center justify-between gap-4">
-                <h2 className="text-lg font-semibold text-gray-700">
-                  AI-Powered Analysis
-                </h2>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={!!settings.ai_enabled}
-                  onClick={() =>
-                    setSettings((prev) => ({ ...prev, ai_enabled: !prev.ai_enabled }))
-                  }
-                  className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                    settings.ai_enabled ? "bg-blue-600" : "bg-gray-300"
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
-                      settings.ai_enabled ? "translate-x-5" : "translate-x-0.5"
-                    }`}
-                  />
-                </button>
-              </div>
-              <p className="text-gray-600 text-sm mt-2">
-                Use a free AI model to classify sentiment instead of counting
-                keywords. Falls back to keyword analysis automatically once the
-                daily request limit below is reached, so posts always get a
-                sentiment.
+              <h2 className="text-lg font-semibold text-gray-700 mb-1">
+                AI Keyword Research
+              </h2>
+              <p className="text-gray-600 text-sm">
+                Configure the AI provider used by the "✨ Generate" buttons on the
+                General tab to research keyword suggestions for your
+                Positive/Negative/Neutral lists. AI is never used to analyze posts
+                directly — sentiment analysis always counts your keyword lists.
               </p>
             </div>
 
-            {settings.ai_enabled && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Provider
-                  </label>
-                  <select
-                    name="ai_provider"
-                    value={settings.ai_provider}
-                    onChange={handleInputChange}
-                    className="w-full md:w-64 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="gemini">Google Gemini (free tier)</option>
-                  </select>
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Provider
+              </label>
+              <select
+                name="ai_provider"
+                value={settings.ai_provider}
+                onChange={handleInputChange}
+                className="w-full md:w-64 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="gemini">Google Gemini (free tier)</option>
+              </select>
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Model
-                  </label>
-                  <select
-                    value={
-                      MODEL_OPTIONS.some((m) => m.value === settings.ai_model)
-                        ? settings.ai_model
-                        : "custom"
-                    }
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setSettings((prev) => ({
-                        ...prev,
-                        ai_model: value === "custom" ? "" : value,
-                      }));
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Model
+              </label>
+              <select
+                value={
+                  MODEL_OPTIONS.some((m) => m.value === settings.ai_model)
+                    ? settings.ai_model
+                    : "custom"
+                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSettings((prev) => ({
+                    ...prev,
+                    ai_model: value === "custom" ? "" : value,
+                  }));
+                }}
+                className="w-full md:w-64 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              >
+                {MODEL_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+                <option value="custom">Custom model ID…</option>
+              </select>
+              {!MODEL_OPTIONS.some((m) => m.value === settings.ai_model) && (
+                <input
+                  type="text"
+                  value={settings.ai_model}
+                  onChange={(e) =>
+                    setSettings((prev) => ({ ...prev, ai_model: e.target.value }))
+                  }
+                  placeholder="e.g. gemini-1.5-flash-8b"
+                  className="mt-2 w-full md:w-64 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                />
+              )}
+              <p className="text-xs text-gray-500 mt-1">
+                If a key returns a quota error on one model, try another —
+                free-tier quota is sometimes allocated per model rather than
+                per key.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Gemini API Key
+              </label>
+
+              {!isEditingApiKey && settings.ai_api_key_set ? (
+                <div className="flex gap-2 max-w-lg">
+                  <div className="flex-1 p-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 font-mono text-sm">
+                    •••• •••• •••• {settings.ai_api_key_last4}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSettings((prev) => ({ ...prev, ai_api_key: "" }));
+                      setIsEditingApiKey(true);
                     }}
-                    className="w-full md:w-64 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
                   >
-                    {MODEL_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                    <option value="custom">Custom model ID…</option>
-                  </select>
-                  {!MODEL_OPTIONS.some((m) => m.value === settings.ai_model) && (
-                    <input
-                      type="text"
-                      value={settings.ai_model}
-                      onChange={(e) =>
-                        setSettings((prev) => ({ ...prev, ai_model: e.target.value }))
-                      }
-                      placeholder="e.g. gemini-1.5-flash-8b"
-                      className="mt-2 w-full md:w-64 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  )}
-                  <p className="text-xs text-gray-500 mt-1">
-                    If a key returns a quota error on one model, try another —
-                    free-tier quota is sometimes allocated per model rather than
-                    per key.
-                  </p>
+                    Change
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleTestApiKey}
+                    disabled={testingKey}
+                    className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    {testingKey ? "Testing..." : "Test"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRemoveApiKey}
+                    disabled={loading}
+                    className="px-3 py-2 text-sm border border-red-300 rounded-md text-red-600 hover:bg-red-50 disabled:opacity-50"
+                  >
+                    Remove
+                  </button>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Gemini API Key
-                  </label>
-
-                  {!isEditingApiKey && settings.ai_api_key_set ? (
-                    <div className="flex gap-2 max-w-lg">
-                      <div className="flex-1 p-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 font-mono text-sm">
-                        •••• •••• •••• {settings.ai_api_key_last4}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSettings((prev) => ({ ...prev, ai_api_key: "" }));
-                          setIsEditingApiKey(true);
-                        }}
-                        className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
-                      >
-                        Change
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleTestApiKey}
-                        disabled={testingKey}
-                        className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50"
-                      >
-                        {testingKey ? "Testing..." : "Test"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleRemoveApiKey}
-                        disabled={loading}
-                        className="px-3 py-2 text-sm border border-red-300 rounded-md text-red-600 hover:bg-red-50 disabled:opacity-50"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex gap-2 max-w-lg">
-                      <input
-                        type={showApiKey ? "text" : "password"}
-                        name="ai_api_key"
-                        value={settings.ai_api_key}
-                        onChange={handleInputChange}
-                        placeholder="Paste your Gemini API key"
-                        className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowApiKey((prev) => !prev)}
-                        className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
-                      >
-                        {showApiKey ? "Hide" : "Show"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleTestApiKey}
-                        disabled={testingKey || !settings.ai_api_key}
-                        className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50"
-                      >
-                        {testingKey ? "Testing..." : "Test"}
-                      </button>
-                      {settings.ai_api_key_set && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSettings((prev) => ({ ...prev, ai_api_key: "" }));
-                            setIsEditingApiKey(false);
-                          }}
-                          className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
-                        >
-                          Cancel
-                        </button>
-                      )}
-                    </div>
-                  )}
-
-                  {testResult && (
-                    <p
-                      className={`text-xs mt-2 ${
-                        testResult.success ? "text-green-700" : "text-red-700"
-                      }`}
-                    >
-                      {testResult.success ? "✅ " : "❌ "}
-                      {testResult.message}
-                    </p>
-                  )}
-
-                  <p className="text-xs text-gray-500 mt-1">
-                    Get a free key from{" "}
-                    <a
-                      href="https://aistudio.google.com/apikey"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline"
-                    >
-                      Google AI Studio
-                    </a>
-                    . Testing uses one request from your daily limit below.
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Daily Request Limit
-                  </label>
+              ) : (
+                <div className="flex gap-2 max-w-lg">
                   <input
-                    type="number"
-                    name="ai_daily_limit"
-                    min="1"
-                    max="100000"
-                    value={settings.ai_daily_limit}
+                    type={showApiKey ? "text" : "password"}
+                    name="ai_api_key"
+                    value={settings.ai_api_key}
                     onChange={handleInputChange}
-                    className="w-32 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Paste your Gemini API key"
+                    className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Once this many AI requests are used today, new posts fall back
-                    to free keyword analysis until the count resets at midnight.
-                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowApiKey((prev) => !prev)}
+                    className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
+                  >
+                    {showApiKey ? "Hide" : "Show"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleTestApiKey}
+                    disabled={testingKey || !settings.ai_api_key}
+                    className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    {testingKey ? "Testing..." : "Test"}
+                  </button>
+                  {settings.ai_api_key_set && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSettings((prev) => ({ ...prev, ai_api_key: "" }));
+                        setIsEditingApiKey(false);
+                      }}
+                      className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                  )}
                 </div>
+              )}
 
-                {aiUsage && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div className="flex justify-between text-sm text-blue-800 mb-2">
-                      <span>Today&apos;s AI usage</span>
-                      <span>
-                        {aiUsage.used} / {aiUsage.limit} requests
-                      </span>
-                    </div>
-                    <div className="w-full bg-blue-100 rounded-full h-2">
-                      <div
-                        className="bg-blue-600 h-2 rounded-full"
-                        style={{
-                          width: `${Math.min(
-                            100,
-                            (aiUsage.used / Math.max(1, aiUsage.limit)) * 100
-                          )}%`,
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                )}
-
-                {aiUsage?.last_error && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <p className="text-sm text-red-800">
-                      <strong>⚠️ Last AI request failed:</strong> {aiUsage.last_error}
-                    </p>
-                    <p className="text-xs text-red-700 mt-1">
-                      Posts analyzed while this error persists are using the free
-                      keyword fallback instead of AI, even though the usage counter
-                      above still counts the attempt.
-                    </p>
-                  </div>
-                )}
-
-                <p className="text-xs text-gray-500">
-                  To confirm AI analysis is actually running: save a key here, then
-                  edit and update a post (or run Bulk Analysis below). Check the
-                  usage counter above — it increments on every AI request — and
-                  look for the "AI" tag next to posts in the All Sentiments and
-                  Dashboard pages (posts analyzed by keywords are tagged "Keyword").
+              {testResult && (
+                <p
+                  className={`text-xs mt-2 ${
+                    testResult.success ? "text-green-700" : "text-red-700"
+                  }`}
+                >
+                  {testResult.success ? "✅ " : "❌ "}
+                  {testResult.message}
                 </p>
-              </>
+              )}
+
+              <p className="text-xs text-gray-500 mt-1">
+                Get a free key from{" "}
+                <a
+                  href="https://aistudio.google.com/apikey"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  Google AI Studio
+                </a>
+                . Testing uses one request from your daily limit below.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Daily Request Limit
+              </label>
+              <input
+                type="number"
+                name="ai_daily_limit"
+                min="1"
+                max="100000"
+                value={settings.ai_daily_limit}
+                onChange={handleInputChange}
+                className="w-32 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Once this many AI requests (testing + keyword generation) are used
+                today, further requests are blocked until the count resets at
+                midnight.
+              </p>
+            </div>
+
+            {aiUsage && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex justify-between text-sm text-blue-800 mb-2">
+                  <span>Today&apos;s AI usage</span>
+                  <span>
+                    {aiUsage.used} / {aiUsage.limit} requests
+                  </span>
+                </div>
+                <div className="w-full bg-blue-100 rounded-full h-2">
+                  <div
+                    className="bg-blue-600 h-2 rounded-full"
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        (aiUsage.used / Math.max(1, aiUsage.limit)) * 100
+                      )}%`,
+                    }}
+                  ></div>
+                </div>
+              </div>
+            )}
+
+            {aiUsage?.last_error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p className="text-sm text-red-800">
+                  <strong>⚠️ Last AI request failed:</strong> {aiUsage.last_error}
+                </p>
+              </div>
             )}
           </div>
         )}
@@ -591,9 +639,11 @@ const Settings = () => {
           About Sentiment Analysis
         </h2>
         <p className="text-gray-600">
-          This plugin analyzes the sentiment of your WordPress posts based on
-          the keywords you define, or optionally a free AI model. Posts are
-          analyzed for positive, negative, or neutral sentiment.
+          This plugin analyzes the sentiment of your WordPress posts by counting
+          the keywords you define. Posts are analyzed for positive, negative, or
+          neutral sentiment based on the frequency of matches with your defined
+          keyword lists. AI can optionally help research those keyword lists, but
+          never analyzes posts directly.
         </p>
       </div>
     </div>
