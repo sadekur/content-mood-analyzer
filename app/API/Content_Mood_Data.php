@@ -456,14 +456,15 @@ class Content_Mood_Data {
         $settings = get_option( $this->option_name, array() );
 
         $defaults = array(
-            'positive_keywords' => '',
-            'negative_keywords' => '',
-            'neutral_keywords'  => '',
-            'badge_position'    => 'top',
-            'ai_provider'       => 'gemini',
-            'ai_model'          => 'gemini-2.0-flash',
-            'ai_api_key'        => '',
-            'ai_daily_limit'    => 100,
+            'positive_keywords'  => '',
+            'negative_keywords'  => '',
+            'neutral_keywords'   => '',
+            'badge_position'     => 'top',
+            'enabled_post_types' => array( 'post' ),
+            'ai_provider'        => 'gemini',
+            'ai_model'           => 'gemini-2.0-flash',
+            'ai_api_key'         => '',
+            'ai_daily_limit'     => 100,
         );
 
         $settings = wp_parse_args( $settings, $defaults );
@@ -471,7 +472,28 @@ class Content_Mood_Data {
         return rest_ensure_response( array(
             'success' => true,
             'settings' => $this->mask_ai_key( $settings ),
+            'available_post_types' => $this->get_available_post_types(),
             'ai_usage' => cma_ai_get_usage_status(),
+        ) );
+    }
+
+    /**
+     * Public post types the checklist in Settings can offer, as
+     * {value, label} pairs. Attachments are excluded - sentiment analysis
+     * of media attachments doesn't make sense.
+     */
+    private function get_available_post_types() {
+        $types = get_post_types( array( 'public' => true ), 'objects' );
+        unset( $types['attachment'] );
+
+        return array_values( array_map(
+            function( $type ) {
+                return array(
+                    'value' => $type->name,
+                    'label' => $type->labels->singular_name,
+                );
+            },
+            $types
         ) );
     }
 
