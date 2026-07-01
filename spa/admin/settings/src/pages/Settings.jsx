@@ -299,10 +299,10 @@ const Settings = () => {
               </h2>
               <p className="text-gray-600 text-sm mb-4">
                 Enter keywords separated by commas — these are what sentiment
-                analysis counts against every post. Or describe a category below
-                each field (e.g. "Customer & Product Reviews", "Financial &
-                Economic Context") and let AI research and fill in a keyword list
-                for you.
+                analysis counts against every post. Or describe a category for
+                each field below (e.g. "Customer & Product Reviews", "Financial &
+                Economic Context", "Weather & Nature"), then click Generate once
+                to have AI research and fill in all three keyword lists together.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -319,25 +319,15 @@ const Settings = () => {
                       className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 h-32"
                     />
 
-                    <div className="mt-2 flex gap-2">
-                      <input
-                        type="text"
-                        value={keywordPrompts[field.key]}
-                        onChange={(e) =>
-                          setKeywordPrompts((prev) => ({ ...prev, [field.key]: e.target.value }))
-                        }
-                        placeholder={field.promptPlaceholder}
-                        className="flex-1 min-w-0 p-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleGenerateKeywords(field.key, field.settingKey)}
-                        disabled={generating[field.key]}
-                        className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50 whitespace-nowrap"
-                      >
-                        {generating[field.key] ? "Generating…" : "✨ Generate"}
-                      </button>
-                    </div>
+                    <input
+                      type="text"
+                      value={keywordPrompts[field.key]}
+                      onChange={(e) =>
+                        setKeywordPrompts((prev) => ({ ...prev, [field.key]: e.target.value }))
+                      }
+                      placeholder={field.promptPlaceholder}
+                      className="mt-2 w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    />
 
                     {generateResult[field.key] && (
                       <p
@@ -353,11 +343,21 @@ const Settings = () => {
                 ))}
               </div>
 
-              <p className="text-xs text-gray-500 mt-3">
-                Generating requires a Gemini API key — add one in the AI Analysis
-                tab. Each generate click uses one request from your daily AI
-                limit.
-              </p>
+              <div className="mt-4 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleGenerateAllKeywords}
+                  disabled={generatingAll || !settings.ai_api_key_set}
+                  className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  {generatingAll ? "Generating…" : "✨ Generate Keywords"}
+                </button>
+                <p className="text-xs text-gray-500">
+                  {settings.ai_api_key_set
+                    ? "Fills in all three fields above from the category text you typed under each one. Uses up to 3 requests from your daily AI limit."
+                    : "Add a Gemini API key in the AI Analysis tab to enable this."}
+                </p>
+              </div>
             </div>
 
             <div className="mb-6">
