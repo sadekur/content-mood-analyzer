@@ -359,6 +359,14 @@ const Settings = () => {
                       </button>
                       <button
                         type="button"
+                        onClick={handleTestApiKey}
+                        disabled={testingKey}
+                        className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        {testingKey ? "Testing..." : "Test"}
+                      </button>
+                      <button
+                        type="button"
                         onClick={handleRemoveApiKey}
                         disabled={loading}
                         className="px-3 py-2 text-sm border border-red-300 rounded-md text-red-600 hover:bg-red-50 disabled:opacity-50"
@@ -383,6 +391,14 @@ const Settings = () => {
                       >
                         {showApiKey ? "Hide" : "Show"}
                       </button>
+                      <button
+                        type="button"
+                        onClick={handleTestApiKey}
+                        disabled={testingKey || !settings.ai_api_key}
+                        className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        {testingKey ? "Testing..." : "Test"}
+                      </button>
                       {settings.ai_api_key_set && (
                         <button
                           type="button"
@@ -398,6 +414,17 @@ const Settings = () => {
                     </div>
                   )}
 
+                  {testResult && (
+                    <p
+                      className={`text-xs mt-2 ${
+                        testResult.success ? "text-green-700" : "text-red-700"
+                      }`}
+                    >
+                      {testResult.success ? "✅ " : "❌ "}
+                      {testResult.message}
+                    </p>
+                  )}
+
                   <p className="text-xs text-gray-500 mt-1">
                     Get a free key from{" "}
                     <a
@@ -408,7 +435,7 @@ const Settings = () => {
                     >
                       Google AI Studio
                     </a>
-                    .
+                    . Testing uses one request from your daily limit below.
                   </p>
                 </div>
 
