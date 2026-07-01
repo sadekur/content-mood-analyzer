@@ -4,7 +4,7 @@ namespace Content_Mood\Services\AI;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Sentiment classification via the Google Gemini free tier
+ * Keyword research via the Google Gemini free tier
  * (https://ai.google.dev/gemini-api/docs/rate-limits).
  */
 class Gemini_Provider implements Provider_Interface {
@@ -36,18 +36,23 @@ class Gemini_Provider implements Provider_Interface {
 	/**
 	 * @inheritDoc
 	 */
-	public function analyze( $title, $content ) {
+	public function generate_keywords( $sentiment, $category_prompt ) {
 		if ( empty( $this->api_key ) ) {
 			cma_ai_set_last_error( __( 'No Gemini API key is configured.', 'content-mood-analyzer' ) );
 			return null;
 		}
 
-		$text = mb_substr( wp_strip_all_tags( $content ), 0, 4000 );
+		$sentiment_labels = array(
+			'positive' => 'positive',
+			'negative' => 'negative',
+			'neutral'  => 'neutral',
+		);
+		$sentiment_label  = $sentiment_labels[ $sentiment ] ?? 'neutral';
 
 		$prompt = sprintf(
-			"Classify the overall sentiment of this blog post as exactly one of: positive, negative, neutral.\n\nTitle: %s\n\nContent: %s",
-			wp_strip_all_tags( $title ),
-			$text
+			"List 15-25 single words or short phrases that signal %s sentiment in the context of: %s\n\nReturn only the words themselves, lowercase, no explanations.",
+			$sentiment_label,
+			$category_prompt ? $category_prompt : 'general written content'
 		);
 
 		$endpoint = sprintf(
@@ -59,7 +64,7 @@ class Gemini_Provider implements Provider_Interface {
 		$response = wp_remote_post(
 			$endpoint,
 			array(
-				'timeout' => 15,
+				'timeout' => 20,
 				'headers' => array( 'Content-Type' => 'application/json' ),
 				'body'    => wp_json_encode(
 					array(
@@ -67,18 +72,11 @@ class Gemini_Provider implements Provider_Interface {
 							array( 'parts' => array( array( 'text' => $prompt ) ) ),
 						),
 						'generationConfig' => array(
-							'temperature'      => 0,
+							'temperature'      => 0.4,
 							'responseMimeType' => 'application/json',
 							'responseSchema'   => array(
-								'type'       => 'OBJECT',
-								'properties' => array(
-									'sentiment'  => array(
-										'type' => 'STRING',
-										'enum' => array( 'positive', 'negative', 'neutral' ),
-									),
-									'confidence' => array( 'type' => 'NUMBER' ),
-								),
-								'required'   => array( 'sentiment', 'confidence' ),
+								'type'  => 'ARRAY',
+								'items' => array( 'type' => 'STRING' ),
 							),
 						),
 					)
@@ -128,25 +126,20 @@ class Gemini_Provider implements Provider_Interface {
 
 		$parsed = json_decode( $raw_text, true );
 
-		if ( ! is_array( $parsed ) || empty( $parsed['sentiment'] ) ) {
+		if ( ! is_array( $parsed ) || empty( $parsed ) ) {
 			cma_ai_set_last_error( __( 'Gemini returned a response in an unexpected format.', 'content-mood-analyzer' ) );
 			return null;
 		}
 
-		$sentiment = strtolower( $parsed['sentiment'] );
+		$keywords = array_filter( array_map( 'sanitize_text_field', $parsed ) );
 
-		if ( ! in_array( $sentiment, array( 'positive', 'negative', 'neutral' ), true ) ) {
-			cma_ai_set_last_error( __( 'Gemini returned an unrecognized sentiment value.', 'content-mood-analyzer' ) );
+		if ( empty( $keywords ) ) {
+			cma_ai_set_last_error( __( 'Gemini did not return any usable keywords.', 'content-mood-analyzer' ) );
 			return null;
 		}
 
-		$confidence = isset( $parsed['confidence'] ) ? max( 0, min( 1, (float) $parsed['confidence'] ) ) : null;
-
 		cma_ai_clear_last_error();
 
-		return array(
-			'sentiment'  => $sentiment,
-			'confidence' => $confidence,
-		);
+		return array_values( $keywords );
 	}
 }
