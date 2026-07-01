@@ -70,6 +70,11 @@ class Content_Mood_Data {
             $updated_fields[] = 'ai_provider';
         }
 
+        if ( $request->has_param( 'ai_model' ) ) {
+            $current['ai_model'] = $request->get_param( 'ai_model' );
+            $updated_fields[] = 'ai_model';
+        }
+
         if ( $request->has_param( 'ai_api_key_remove' ) && $request->get_param( 'ai_api_key_remove' ) ) {
             $current['ai_api_key'] = '';
             $updated_fields[] = 'ai_api_key';
