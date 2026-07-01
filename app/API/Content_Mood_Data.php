@@ -155,45 +155,68 @@ class Content_Mood_Data {
     }
 
     /**
-     * Bulk analyze all posts (keyword-based, same as a single analyze - AI is
-     * never used here, it only researches keyword lists in the General tab).
+     * Start a background bulk-analysis run over every post of an enabled
+     * type. Returns immediately - the actual analysis happens in small
+     * WP-Cron batches (see cma_process_bulk_batch()), so this never risks
+     * timing out on a large site. Poll /analyze/bulk/status for progress.
      */
     public function bulk_analyze( $request ) {
-        $args = array(
-            'post_type' => cma_get_enabled_post_types(),
-            'post_status' => 'publish',
-            'posts_per_page' => -1,
-            'fields' => 'ids'
-        );
-
-        $post_ids = get_posts( $args );
-        $analyzed = 0;
-        $results = array();
-
-        foreach ( $post_ids as $post_id ) {
-            $post = get_post( $post_id );
-            if ( $post ) {
-                $sentiment = cma_perform_sentiment_analysis( $post );
-                $results[] = array(
-                    'post_id' => $post_id,
-                    'sentiment' => $sentiment,
-                );
-                $analyzed++;
-            }
+        if ( ! cma_start_bulk_queue() ) {
+            return rest_ensure_response( array(
+                'success' => false,
+                'message' => __( 'A bulk analysis is already running.', 'content-mood-analyzer' ),
+                'queue'   => $this->format_bulk_queue( cma_get_bulk_queue() ),
+            ) );
         }
-
-        cma_clear_sentiment_cache();
 
         return rest_ensure_response( array(
             'success' => true,
-            'analyzed' => $analyzed,
-            'total' => count( $post_ids ),
-            'results' => $results,
-            'message' => sprintf(
-                __( 'Analyzed %d posts successfully.', 'content-mood-analyzer' ),
-                $analyzed
-            ),
-        ));
+            'message' => __( 'Bulk analysis started in the background.', 'content-mood-analyzer' ),
+            'queue'   => $this->format_bulk_queue( cma_get_bulk_queue() ),
+        ) );
+    }
+
+    /**
+     * Current progress of the background bulk-analysis run, for the
+     * Settings screen to poll and show a live progress bar.
+     */
+    public function get_bulk_status( $request ) {
+        return rest_ensure_response( array(
+            'success' => true,
+            'queue'   => $this->format_bulk_queue( cma_get_bulk_queue() ),
+        ) );
+    }
+
+    /**
+     * Cancel an in-progress bulk-analysis run. Posts already analyzed keep
+     * their sentiment.
+     */
+    public function cancel_bulk_analysis( $request ) {
+        cma_cancel_bulk_queue();
+
+        return rest_ensure_response( array(
+            'success' => true,
+            'message' => __( 'Bulk analysis cancelled.', 'content-mood-analyzer' ),
+            'queue'   => $this->format_bulk_queue( cma_get_bulk_queue() ),
+        ) );
+    }
+
+    /**
+     * Trim the queue down to what the frontend actually needs - never send
+     * the full post ID list, it's an internal implementation detail and can
+     * be large on a big site.
+     */
+    private function format_bulk_queue( $queue ) {
+        return array(
+            'status'      => $queue['status'],
+            'total'       => $queue['total'],
+            'processed'   => $queue['processed'],
+            'positive'    => $queue['positive'],
+            'negative'    => $queue['negative'],
+            'neutral'     => $queue['neutral'],
+            'started_at'  => $queue['started_at'],
+            'finished_at' => $queue['finished_at'],
+        );
     }
 
     /**
