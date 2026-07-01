@@ -16,7 +16,7 @@ class Content_Mood_Data {
 
 	private $option_name = 'content_mood_analyzer_settings';
 
-	
+
     /**
      * Update plugin settings
      */
@@ -28,7 +28,6 @@ class Content_Mood_Data {
             'negative_keywords' => '',
             'neutral_keywords'  => '',
             'badge_position'    => 'top',
-            'ai_enabled'        => false,
             'ai_provider'       => 'gemini',
             'ai_model'          => 'gemini-2.0-flash',
             'ai_api_key'        => '',
@@ -58,11 +57,6 @@ class Content_Mood_Data {
         if ( $request->has_param( 'badge_position' ) ) {
             $current['badge_position'] = $request->get_param( 'badge_position' );
             $updated_fields[] = 'badge_position';
-        }
-
-        if ( $request->has_param( 'ai_enabled' ) ) {
-            $current['ai_enabled'] = (bool) $request->get_param( 'ai_enabled' );
-            $updated_fields[] = 'ai_enabled';
         }
 
         if ( $request->has_param( 'ai_provider' ) ) {
@@ -149,8 +143,6 @@ class Content_Mood_Data {
             'success' => true,
             'post_id' => $post_id,
             'sentiment' => $sentiment,
-            'source' => get_post_meta( $post_id, '_post_sentiment_source', true ),
-            'ai_usage' => cma_ai_get_usage_status(),
             'message' => __( 'Post analyzed successfully.', 'content-mood-analyzer' ),
         ) );
     }
@@ -167,25 +159,17 @@ class Content_Mood_Data {
             'fields' => 'ids'
         );
 
-        $post_ids   = get_posts( $args );
-        $analyzed   = 0;
-        $ai_count   = 0;
-        $results    = array();
+        $post_ids = get_posts( $args );
+        $analyzed = 0;
+        $results = array();
 
         foreach ( $post_ids as $post_id ) {
             $post = get_post( $post_id );
             if ( $post ) {
                 $sentiment = cma_perform_sentiment_analysis( $post );
-                $source    = get_post_meta( $post_id, '_post_sentiment_source', true );
-
-                if ( 'ai' === $source ) {
-                    $ai_count++;
-                }
-
                 $results[] = array(
-                    'post_id'   => $post_id,
+                    'post_id' => $post_id,
                     'sentiment' => $sentiment,
-                    'source'    => $source,
                 );
                 $analyzed++;
             }
@@ -198,9 +182,6 @@ class Content_Mood_Data {
             'success' => true,
             'analyzed' => $analyzed,
             'total' => count( $post_ids ),
-            'ai_analyzed' => $ai_count,
-            'keyword_analyzed' => $analyzed - $ai_count,
-            'ai_usage' => cma_ai_get_usage_status(),
             'results' => $results,
             'message' => sprintf(
                 __( 'Analyzed %d posts successfully.', 'content-mood-analyzer' ),
@@ -222,10 +203,11 @@ class Content_Mood_Data {
     }
 
     /**
-     * Test an AI API key with one real request, without waiting for a full
-     * post analysis to discover whether it works. Uses the key from the
-     * request if provided (so an unsaved, just-typed key can be validated),
-     * otherwise the currently saved key.
+     * Test an AI API key/model with one real keyword-research request, so a
+     * bad key or an unavailable model is caught immediately instead of
+     * discovered while trying to generate real keyword suggestions. Uses the
+     * key/model from the request if provided (so unsaved values can be
+     * validated before Save), otherwise the currently saved ones.
      */
     public function test_ai_connection( $request ) {
         $api_key = $request->get_param( 'api_key' );
@@ -248,12 +230,9 @@ class Content_Mood_Data {
         }
 
         $provider = new Gemini_Provider( $api_key, $model );
-        $result   = $provider->analyze(
-            'Test Post',
-            'This is a wonderful, fantastic, and great test post used to confirm the AI connection works.'
-        );
+        $keywords = $provider->generate_keywords( 'positive', 'general test' );
 
-        if ( null === $result ) {
+        if ( null === $keywords ) {
             $error = cma_ai_get_last_error();
 
             return rest_ensure_response( array(
@@ -264,14 +243,59 @@ class Content_Mood_Data {
         }
 
         return rest_ensure_response( array(
-            'success'   => true,
-            'sentiment' => $result['sentiment'],
-            'message'   => sprintf(
-                /* translators: %s: the sentiment Gemini returned for the test text */
-                __( 'Success! Gemini classified the test text as "%s".', 'content-mood-analyzer' ),
-                $result['sentiment']
+            'success'  => true,
+            'message'  => sprintf(
+                /* translators: %s: example keywords Gemini returned for the test prompt */
+                __( 'Success! Gemini returned keywords like: %s.', 'content-mood-analyzer' ),
+                implode( ', ', array_slice( $keywords, 0, 5 ) )
             ),
-            'ai_usage'  => cma_ai_get_usage_status(),
+            'ai_usage' => cma_ai_get_usage_status(),
+        ) );
+    }
+
+    /**
+     * Research and generate a keyword list for one of the Positive/Negative/
+     * Neutral fields, given a free-text description of the domain/category.
+     */
+    public function generate_keywords( $request ) {
+        $sentiment = $request->get_param( 'sentiment' );
+        $prompt    = $request->get_param( 'prompt' );
+        $api_key   = cma_get_setting( 'ai_api_key', '' );
+
+        if ( empty( $api_key ) ) {
+            return rest_ensure_response( array(
+                'success' => false,
+                'message' => __( 'Add a Gemini API key in the AI Analysis tab first.', 'content-mood-analyzer' ),
+            ) );
+        }
+
+        if ( cma_ai_limit_reached() ) {
+            return rest_ensure_response( array(
+                'success'  => false,
+                'message'  => __( 'Daily AI request limit reached. Try again after it resets at midnight, or raise the limit in the AI Analysis tab.', 'content-mood-analyzer' ),
+                'ai_usage' => cma_ai_get_usage_status(),
+            ) );
+        }
+
+        $model    = cma_get_setting( 'ai_model', 'gemini-2.0-flash' );
+        $provider = new Gemini_Provider( $api_key, $model );
+        $keywords = $provider->generate_keywords( $sentiment, $prompt );
+
+        if ( null === $keywords ) {
+            $error = cma_ai_get_last_error();
+
+            return rest_ensure_response( array(
+                'success'  => false,
+                'message'  => $error ? $error['message'] : __( 'The AI request failed for an unknown reason.', 'content-mood-analyzer' ),
+                'ai_usage' => cma_ai_get_usage_status(),
+            ) );
+        }
+
+        return rest_ensure_response( array(
+            'success'  => true,
+            'keywords' => implode( ', ', $keywords ),
+            'ai_usage' => cma_ai_get_usage_status(),
+            'message'  => __( 'Keywords generated.', 'content-mood-analyzer' ),
         ) );
     }
 
@@ -285,7 +309,7 @@ class Content_Mood_Data {
         $sort       = $request->get_param( 'sort' ) ?: 'desc';
         $from_date  = $request->get_param( 'from_date' );
         $to_date    = $request->get_param( 'to_date' );
-        
+
         $filters = array();
 
         if ( ! empty( $sentiment ) ) {
@@ -325,7 +349,6 @@ class Content_Mood_Data {
                     'permalink' => get_permalink( $post->ID ),
                     'date'      => get_the_date( '', $post->ID ),
                     'sentiment' => get_post_meta( $post->ID, '_post_sentiment', true ),
-                    'source'    => get_post_meta( $post->ID, '_post_sentiment_source', true ),
                     'author'    => get_the_author_meta( 'display_name', $post->post_author ),
                 );
             },
@@ -389,7 +412,6 @@ class Content_Mood_Data {
                 'permalink' => get_permalink( $post_id ),
                 'date'      => get_the_date( '', $post_id ),
                 'sentiment' => $sentiment,
-                'source'    => get_post_meta( $post_id, '_post_sentiment_source', true ),
                 'author'    => get_the_author_meta( 'display_name', $post->post_author ),
             ),
         ) );
@@ -406,7 +428,6 @@ class Content_Mood_Data {
             'negative_keywords' => '',
             'neutral_keywords'  => '',
             'badge_position'    => 'top',
-            'ai_enabled'        => false,
             'ai_provider'       => 'gemini',
             'ai_model'          => 'gemini-2.0-flash',
             'ai_api_key'        => '',
