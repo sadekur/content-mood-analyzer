@@ -13,7 +13,7 @@ class Content_Mood_Data {
      * Analyze a single post
      */
 
-	private $option_name = 'sentiment_analyzer_settings';
+	private $option_name = 'content_mood_analyzer_settings';
 
 	
     /**

@@ -41,7 +41,7 @@ class Front {
      */
     private function perform_analysis( $post ) {
         $content = strtolower( $post->post_content . ' ' . $post->post_title );
-        $settings = get_option( 'sentiment_analyzer_settings', array() );
+        $settings = get_option( 'content_mood_analyzer_settings', array() );
         $defaults = array(
             'positive_keywords' => '',
             'negative_keywords' => '',
@@ -105,7 +105,7 @@ class Front {
             $sentiment = $this->perform_analysis($post);
         }
 
-        $settings = get_option('sentiment_analyzer_settings', array());
+        $settings = get_option('content_mood_analyzer_settings', array());
         $position = isset($settings['badge_position']) ? $settings['badge_position'] : 'none';
         if ($position === 'none') {
             return $content;
