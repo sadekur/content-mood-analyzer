@@ -64,16 +64,14 @@ final class Content_Mood_Analyzer{
 		define( 'CONTENT_MOOD_ANALYZER_URL', plugin_dir_url(__FILE__) );
 		define( 'CONTENT_MOOD_ANALYZER_ASSETS', CONTENT_MOOD_ANALYZER_URL . 'assets/' );
 
-		// Fixed AI keyword-research credentials - not user configurable, so
-		// every install uses this key/model with no setup required. The key
-		// itself is never committed to source; define it in wp-config.php:
-		//   define( 'CONTENT_MOOD_ANALYZER_GEMINI_API_KEY', 'your-key-here' );
-		if ( ! defined( 'CONTENT_MOOD_ANALYZER_GEMINI_API_KEY' ) ) {
-			define( 'CONTENT_MOOD_ANALYZER_GEMINI_API_KEY', '' );
-		}
-		if ( ! defined( 'CONTENT_MOOD_ANALYZER_GEMINI_MODEL' ) ) {
-			define( 'CONTENT_MOOD_ANALYZER_GEMINI_MODEL', 'gemini-2.5-flash' );
-		}
+		// AI keyword research goes through the plugin's Cloudflare Worker
+		// proxy (see /cloudflare-worker) - not user configurable, so every
+		// install works with no setup. Neither value below is a real secret:
+		// the URL is just a public endpoint, and the token only filters out
+		// drive-by requests (the real Gemini key lives solely in the
+		// Worker's own secrets, never in this plugin's source).
+		define( 'CONTENT_MOOD_ANALYZER_AI_PROXY_URL', 'https://content-mood-analyzer-ai-proxy.YOUR-SUBDOMAIN.workers.dev' );
+		define( 'CONTENT_MOOD_ANALYZER_AI_PROXY_TOKEN', 'b6fed5e964baaa2dcd3c7969870f84c70791b7cd02afdf5e' );
 	}
 
 	/**
