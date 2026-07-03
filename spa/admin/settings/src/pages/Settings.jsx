@@ -633,27 +633,7 @@ const Settings = () => {
                 >
                   Google AI Studio
                 </a>
-                . Testing uses one request from your daily limit below.
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Daily Request Limit
-              </label>
-              <input
-                type="number"
-                name="ai_daily_limit"
-                min="1"
-                max="100000"
-                value={settings.ai_daily_limit}
-                onChange={handleInputChange}
-                className="w-32 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Once this many AI requests (testing + keyword generation) are used
-                today, further requests are blocked until the count resets at
-                midnight.
+                . Testing uses one request from your daily AI limit.
               </p>
             </div>
 
