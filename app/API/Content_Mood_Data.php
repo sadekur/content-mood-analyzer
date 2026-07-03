@@ -71,10 +71,16 @@ class Content_Mood_Data {
                 cma_clear_sentiment_cache();
             }
 
+            // Provider/model/key are hardcoded now (see cma_get_ai_provider()) -
+            // never echo back whatever may be left in the option from before
+            // this was locked down.
+            $response_settings = $current;
+            unset( $response_settings['ai_provider'], $response_settings['ai_model'], $response_settings['ai_api_key'] );
+
             return rest_ensure_response( array(
                 'success' => true,
                 'updated' => $updated_fields,
-                'settings' => $current,
+                'settings' => $response_settings,
                 'ai_usage' => cma_ai_get_usage_status(),
                 'message' => __( 'Settings saved successfully.', 'content-mood-analyzer' ),
             ) );
