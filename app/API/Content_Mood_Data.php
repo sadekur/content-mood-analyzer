@@ -72,12 +72,10 @@ class Content_Mood_Data {
                 cma_clear_sentiment_cache();
             }
 
-            $response_settings = $this->mask_ai_key( $current );
-
             return rest_ensure_response( array(
                 'success' => true,
                 'updated' => $updated_fields,
-                'settings' => $response_settings,
+                'settings' => $current,
                 'ai_usage' => cma_ai_get_usage_status(),
                 'message' => __( 'Settings saved successfully.', 'content-mood-analyzer' ),
             ) );
