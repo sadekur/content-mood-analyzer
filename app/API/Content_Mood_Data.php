@@ -300,8 +300,15 @@ class Content_Mood_Data {
      */
     public function generate_keywords( $request ) {
         $sentiment = $request->get_param( 'sentiment' );
-        $prompt    = $request->get_param( 'prompt' );
+        $prompt    = trim( (string) $request->get_param( 'prompt' ) );
         $api_key   = cma_get_setting( 'ai_api_key', '' );
+
+        if ( '' === $prompt ) {
+            return rest_ensure_response( array(
+                'success' => false,
+                'message' => __( 'Enter a category description first.', 'content-mood-analyzer' ),
+            ) );
+        }
 
         if ( empty( $api_key ) ) {
             return rest_ensure_response( array(
@@ -313,7 +320,7 @@ class Content_Mood_Data {
         if ( cma_ai_limit_reached() ) {
             return rest_ensure_response( array(
                 'success'  => false,
-                'message'  => __( 'Daily AI request limit reached. Try again after it resets at midnight, or raise the limit in the AI Analysis tab.', 'content-mood-analyzer' ),
+                'message'  => __( 'Daily AI request limit reached. Try again after it resets at midnight.', 'content-mood-analyzer' ),
                 'ai_usage' => cma_ai_get_usage_status(),
             ) );
         }
