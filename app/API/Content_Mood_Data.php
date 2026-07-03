@@ -252,19 +252,11 @@ class Content_Mood_Data {
     public function generate_keywords( $request ) {
         $sentiment = $request->get_param( 'sentiment' );
         $prompt    = trim( (string) $request->get_param( 'prompt' ) );
-        $api_key   = cma_get_setting( 'ai_api_key', '' );
 
         if ( '' === $prompt ) {
             return rest_ensure_response( array(
                 'success' => false,
                 'message' => __( 'Enter a category description first.', 'content-mood-analyzer' ),
-            ) );
-        }
-
-        if ( empty( $api_key ) ) {
-            return rest_ensure_response( array(
-                'success' => false,
-                'message' => __( 'Add a Gemini API key in the AI Analysis tab first.', 'content-mood-analyzer' ),
             ) );
         }
 
@@ -276,16 +268,7 @@ class Content_Mood_Data {
             ) );
         }
 
-        // Use the model from the request if provided, so switching the Model
-        // dropdown takes effect immediately without requiring Save first
-        // (mirrors how /ai/test already works).
-        $model = $request->get_param( 'model' );
-
-        if ( empty( $model ) ) {
-            $model = cma_get_setting( 'ai_model', 'gemini-2.0-flash' );
-        }
-
-        $provider = new Gemini_Provider( $api_key, $model );
+        $provider = cma_get_ai_provider();
         $keywords = $provider->generate_keywords( $sentiment, $prompt );
 
         if ( null === $keywords ) {
