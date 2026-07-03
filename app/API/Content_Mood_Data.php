@@ -5,7 +5,6 @@ defined( 'ABSPATH' ) || exit;
 
 use Content_Mood\Traits\Rest;
 use Content_Mood\Models\Content_Mood_Model as Content_Mood_Data_Model;
-use Content_Mood\Services\AI\Gemini_Provider;
 
 class Content_Mood_Data {
 
