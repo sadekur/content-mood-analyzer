@@ -385,10 +385,15 @@ const Settings = () => {
                 </button>
                 <p className="text-xs text-gray-500">
                   {settings.ai_api_key_set
-                    ? "Fills in all three fields above from the category text you typed under each one. Uses up to 3 requests from your daily AI limit."
+                    ? "Fills in a field above from the category text you typed under it. Uses one request per field with text entered."
                     : "Add a Gemini API key in the AI Analysis tab to enable this."}
                 </p>
               </div>
+              {settings.ai_api_key_set && aiUsage && (
+                <p className="text-xs text-gray-500 mt-1">
+                  {aiUsage.remaining} of {aiUsage.limit} AI generations left today.
+                </p>
+              )}
             </div>
 
             <div className="mb-6">
