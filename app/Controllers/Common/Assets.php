@@ -68,18 +68,10 @@ class Assets {
 				CONTENT_MOOD_ANALYZER_VERSION
 			);
 
-			wp_enqueue_script( 
+			wp_enqueue_script(
 				'content-mood-analyzer-admin-react',
 				CONTENT_MOOD_ANALYZER_URL . 'build/admin.bundle.js',
 				array('wp-element', 'wp-components'),
-				CONTENT_MOOD_ANALYZER_VERSION,
-				true
-			);
-
-			wp_enqueue_script(
-				'content-mood-analyzer-admin',
-				CONTENT_MOOD_ANALYZER_ASSETS . '/admin/js/admin.js',
-				array( 'jquery' ),
 				CONTENT_MOOD_ANALYZER_VERSION,
 				true
 			);
