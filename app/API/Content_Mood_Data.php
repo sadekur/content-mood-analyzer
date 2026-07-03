@@ -61,30 +61,6 @@ class Content_Mood_Data {
             $updated_fields[] = 'enabled_post_types';
         }
 
-        if ( $request->has_param( 'ai_provider' ) ) {
-            $current['ai_provider'] = $request->get_param( 'ai_provider' );
-            $updated_fields[] = 'ai_provider';
-        }
-
-        if ( $request->has_param( 'ai_model' ) ) {
-            $current['ai_model'] = $request->get_param( 'ai_model' );
-            $updated_fields[] = 'ai_model';
-        }
-
-        if ( $request->has_param( 'ai_api_key_remove' ) && $request->get_param( 'ai_api_key_remove' ) ) {
-            $current['ai_api_key'] = '';
-            $updated_fields[] = 'ai_api_key';
-        } elseif ( $request->has_param( 'ai_api_key' ) ) {
-            // A blank value keeps the previously saved key - the settings
-            // screen never receives the real key back, so it always submits
-            // blank unless the user actually typed a new one.
-            $new_key = $request->get_param( 'ai_api_key' );
-            if ( '' !== $new_key ) {
-                $current['ai_api_key'] = $new_key;
-                $updated_fields[] = 'ai_api_key';
-            }
-        }
-
         // Save as single array
         $saved = update_option( $this->option_name, $current );
 
