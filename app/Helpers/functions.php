@@ -216,7 +216,7 @@ function cma_ai_record_usage() {
  */
 function cma_ai_get_usage_status() {
     $usage = cma_ai_get_usage();
-    $limit = (int) cma_get_setting( 'ai_daily_limit', 100 );
+    $limit = cma_ai_daily_limit();
     $error = cma_ai_get_last_error();
 
     return array(
