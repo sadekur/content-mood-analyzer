@@ -140,26 +140,16 @@ function cma_perform_sentiment_analysis( $post ) {
 }
 
 /**
- * Instantiate the configured AI keyword-research provider, or null if none
- * is usable (no key configured). Only Gemini is supported today; the
- * interface already allows more providers to be added without touching the
- * REST endpoint that calls this.
+ * Instantiate the AI keyword-research provider. Key/model are fixed
+ * (CONTENT_MOOD_ANALYZER_GEMINI_API_KEY / _MODEL), not user configurable.
+ * Only Gemini is supported today; the interface already allows more
+ * providers to be added without touching the REST endpoint that calls this.
  */
 function cma_get_ai_provider() {
-    $api_key = cma_get_setting( 'ai_api_key', '' );
-
-    if ( empty( $api_key ) ) {
-        return null;
-    }
-
-    $provider = cma_get_setting( 'ai_provider', 'gemini' );
-    $model    = cma_get_setting( 'ai_model', 'gemini-2.0-flash' );
-
-    switch ( $provider ) {
-        case 'gemini':
-        default:
-            return new \Content_Mood\Services\AI\Gemini_Provider( $api_key, $model );
-    }
+    return new \Content_Mood\Services\AI\Gemini_Provider(
+        CONTENT_MOOD_ANALYZER_GEMINI_API_KEY,
+        CONTENT_MOOD_ANALYZER_GEMINI_MODEL
+    );
 }
 
 /**
