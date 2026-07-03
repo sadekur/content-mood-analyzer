@@ -429,6 +429,11 @@ class Content_Mood_Data {
 
         $settings = wp_parse_args( $settings, $defaults );
 
+        // Provider/model/key are hardcoded now (see cma_get_ai_provider()) -
+        // never echo back whatever may be left in the option from before
+        // this was locked down.
+        unset( $settings['ai_provider'], $settings['ai_model'], $settings['ai_api_key'] );
+
         return rest_ensure_response( array(
             'success' => true,
             'settings' => $settings,
