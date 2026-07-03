@@ -239,6 +239,16 @@ const Settings = () => {
 
     await Promise.all(
       KEYWORD_FIELDS.map(async (field) => {
+        const prompt = keywordPrompts[field.key].trim();
+
+        if (!prompt) {
+          setGenerateResult((prev) => ({
+            ...prev,
+            [field.key]: { success: false, message: "Enter a category description first." },
+          }));
+          return;
+        }
+
         try {
           const response = await fetch(CONTENT_MOOD_ANALYZER?.apiUrl + "/ai/generate-keywords", {
             method: "POST",
@@ -251,7 +261,7 @@ const Settings = () => {
             // immediately without requiring a Save first.
             body: JSON.stringify({
               sentiment: field.key,
-              prompt: keywordPrompts[field.key],
+              prompt,
               model: settings.ai_model,
             }),
           });
