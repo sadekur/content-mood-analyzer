@@ -155,21 +155,13 @@ class API {
             )
         );
 
-        // Test an AI API key
+        // Test the (hardcoded) Gemini key/model
         $this->register_route(
             '/ai/test',
             array(
                 'methods'             => 'POST',
                 'callback'            => array( new Content_Mood_Data(), 'test_ai_connection' ),
                 'permission_callback' => array( $this, 'check_permission' ),
-                'args'                => array(
-                    'api_key' => array(
-                        'sanitize_callback' => 'sanitize_text_field',
-                    ),
-                    'model' => array(
-                        'sanitize_callback' => 'sanitize_text_field',
-                    ),
-                ),
             )
         );
 
@@ -188,9 +180,6 @@ class API {
                         }
                     ),
                     'prompt' => array(
-                        'sanitize_callback' => 'sanitize_text_field',
-                    ),
-                    'model' => array(
                         'sanitize_callback' => 'sanitize_text_field',
                     ),
                 ),
