@@ -85,12 +85,6 @@ class API {
                     'ai_api_key_remove' => array(
                         'sanitize_callback' => 'rest_sanitize_boolean',
                     ),
-                    'ai_daily_limit' => array(
-                        'sanitize_callback' => 'absint',
-                        'validate_callback' => function( $param ) {
-                            return is_numeric( $param ) && $param >= 1 && $param <= 100000;
-                        }
-                    ),
                 ),
             )
         );
