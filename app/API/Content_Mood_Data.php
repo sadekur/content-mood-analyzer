@@ -88,11 +88,6 @@ class Content_Mood_Data {
             }
         }
 
-        if ( $request->has_param( 'ai_daily_limit' ) ) {
-            $current['ai_daily_limit'] = (int) $request->get_param( 'ai_daily_limit' );
-            $updated_fields[] = 'ai_daily_limit';
-        }
-
         // Save as single array
         $saved = update_option( $this->option_name, $current );
 
