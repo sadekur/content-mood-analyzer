@@ -425,16 +425,13 @@ class Content_Mood_Data {
             'neutral_keywords'   => '',
             'badge_position'     => 'top',
             'enabled_post_types' => array( 'post' ),
-            'ai_provider'        => 'gemini',
-            'ai_model'           => 'gemini-2.0-flash',
-            'ai_api_key'         => '',
         );
 
         $settings = wp_parse_args( $settings, $defaults );
 
         return rest_ensure_response( array(
             'success' => true,
-            'settings' => $this->mask_ai_key( $settings ),
+            'settings' => $settings,
             'available_post_types' => $this->get_available_post_types(),
             'ai_usage' => cma_ai_get_usage_status(),
         ) );
