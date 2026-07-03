@@ -65,9 +65,15 @@ final class Content_Mood_Analyzer{
 		define( 'CONTENT_MOOD_ANALYZER_ASSETS', CONTENT_MOOD_ANALYZER_URL . 'assets/' );
 
 		// Fixed AI keyword-research credentials - not user configurable, so
-		// every install uses this key/model with no setup required.
-		define( 'CONTENT_MOOD_ANALYZER_GEMINI_API_KEY', '' );
-		define( 'CONTENT_MOOD_ANALYZER_GEMINI_MODEL', 'gemini-2.5-flash' );
+		// every install uses this key/model with no setup required. The key
+		// itself is never committed to source; define it in wp-config.php:
+		//   define( 'CONTENT_MOOD_ANALYZER_GEMINI_API_KEY', 'your-key-here' );
+		if ( ! defined( 'CONTENT_MOOD_ANALYZER_GEMINI_API_KEY' ) ) {
+			define( 'CONTENT_MOOD_ANALYZER_GEMINI_API_KEY', '' );
+		}
+		if ( ! defined( 'CONTENT_MOOD_ANALYZER_GEMINI_MODEL' ) ) {
+			define( 'CONTENT_MOOD_ANALYZER_GEMINI_MODEL', 'gemini-2.5-flash' );
+		}
 	}
 
 	/**

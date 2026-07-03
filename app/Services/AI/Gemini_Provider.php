@@ -24,9 +24,8 @@ class Gemini_Provider implements Provider_Interface {
 
 	/**
 	 * @param string      $api_key
-	 * @param string|null $model Model ID to use instead of the default, e.g. from
-	 *                           the `ai_model` setting. Falls back to the default
-	 *                           when empty.
+	 * @param string|null $model Model ID to use instead of the default. Falls
+	 *                           back to the default when empty.
 	 */
 	public function __construct( $api_key, $model = null ) {
 		$this->api_key = $api_key;
