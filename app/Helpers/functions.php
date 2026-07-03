@@ -140,15 +140,16 @@ function cma_perform_sentiment_analysis( $post ) {
 }
 
 /**
- * Instantiate the AI keyword-research provider. Key/model are fixed
- * (CONTENT_MOOD_ANALYZER_GEMINI_API_KEY / _MODEL), not user configurable.
- * Only Gemini is supported today; the interface already allows more
- * providers to be added without touching the REST endpoint that calls this.
+ * Instantiate the AI keyword-research provider. Every install talks to the
+ * plugin's shared Cloudflare Worker proxy (see /cloudflare-worker) - the
+ * real Gemini key lives only in that Worker's secrets, never on any site
+ * running this plugin. The interface already allows other providers to be
+ * added without touching the REST endpoint that calls this.
  */
 function cma_get_ai_provider() {
-    return new \Content_Mood\Services\AI\Gemini_Provider(
-        CONTENT_MOOD_ANALYZER_GEMINI_API_KEY,
-        CONTENT_MOOD_ANALYZER_GEMINI_MODEL
+    return new \Content_Mood\Services\AI\Proxy_Provider(
+        CONTENT_MOOD_ANALYZER_AI_PROXY_URL,
+        CONTENT_MOOD_ANALYZER_AI_PROXY_TOKEN
     );
 }
 
