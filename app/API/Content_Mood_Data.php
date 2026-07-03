@@ -467,19 +467,4 @@ class Content_Mood_Data {
             $types
         ) );
     }
-
-    /**
-     * Strip the raw API key out of a settings array before it's sent to the
-     * browser, replacing it with whether a key is set and its last 4
-     * characters (enough to recognize it, never enough to reuse it).
-     */
-    private function mask_ai_key( array $settings ) {
-        $key = isset( $settings['ai_api_key'] ) ? $settings['ai_api_key'] : '';
-
-        $settings['ai_api_key_set']   = '' !== $key;
-        $settings['ai_api_key_last4'] = '' !== $key ? substr( $key, -4 ) : '';
-        $settings['ai_api_key']       = '';
-
-        return $settings;
-    }
 }
