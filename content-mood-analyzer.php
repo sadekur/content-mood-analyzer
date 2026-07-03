@@ -63,6 +63,11 @@ final class Content_Mood_Analyzer{
 		define( 'CONTENT_MOOD_ANALYZER_PATH', plugin_dir_path(__FILE__) );
 		define( 'CONTENT_MOOD_ANALYZER_URL', plugin_dir_url(__FILE__) );
 		define( 'CONTENT_MOOD_ANALYZER_ASSETS', CONTENT_MOOD_ANALYZER_URL . 'assets/' );
+
+		// Fixed AI keyword-research credentials - not user configurable, so
+		// every install uses this key/model with no setup required.
+		define( 'CONTENT_MOOD_ANALYZER_GEMINI_API_KEY', '' );
+		define( 'CONTENT_MOOD_ANALYZER_GEMINI_MODEL', 'gemini-2.5-flash' );
 	}
 
 	/**
