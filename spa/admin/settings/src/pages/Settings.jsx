@@ -7,13 +7,6 @@ const TABS = [
   { key: "ai", label: "AI Analysis" },
 ];
 
-const MODEL_OPTIONS = [
-  { value: "gemini-2.0-flash", label: "Gemini 2.0 Flash (default)" },
-  { value: "gemini-2.0-flash-lite", label: "Gemini 2.0 Flash-Lite" },
-  { value: "gemini-1.5-flash", label: "Gemini 1.5 Flash" },
-  { value: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
-];
-
 const KEYWORD_FIELDS = [
   {
     key: "positive",
@@ -46,15 +39,8 @@ const Settings = () => {
     neutral_keywords: "",
     badge_position: "top",
     enabled_post_types: ["post"],
-    ai_provider: "gemini",
-    ai_model: "gemini-2.0-flash",
-    ai_api_key: "",
-    ai_api_key_set: false,
-    ai_api_key_last4: "",
   });
   const [aiUsage, setAiUsage] = useState(null);
-  const [isEditingApiKey, setIsEditingApiKey] = useState(false);
-  const [showApiKey, setShowApiKey] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [testingKey, setTestingKey] = useState(false);
@@ -81,7 +67,6 @@ const Settings = () => {
       const result = await response.json();
       if (result.success) {
         setSettings((prev) => ({ ...prev, ...result.settings }));
-        setIsEditingApiKey(!result.settings.ai_api_key_set);
         setAvailablePostTypes(result.available_post_types || []);
         if (result.ai_usage) {
           setAiUsage(result.ai_usage);
@@ -128,11 +113,9 @@ const Settings = () => {
 
       if (result.success) {
         setSettings((prev) => ({ ...prev, ...result.settings }));
-        setIsEditingApiKey(!result.settings.ai_api_key_set);
         if (result.ai_usage) {
           setAiUsage(result.ai_usage);
         }
-        setShowApiKey(false);
         setMessage({
           type: "success",
           text: result.message || "Settings saved successfully!",
@@ -154,7 +137,9 @@ const Settings = () => {
     }
   };
 
-  const handleTestApiKey = async () => {
+  // Confirms the (hardcoded) Gemini key/model still work, without exposing
+  // any key/model configuration to the user.
+  const handleTestConnection = async () => {
     setTestingKey(true);
     setTestResult(null);
 
@@ -165,9 +150,6 @@ const Settings = () => {
           "Content-Type": "application/json",
           "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce,
         },
-        // Test whatever is currently typed/selected; if the key field is blank
-        // (saved-key view), the backend falls back to the already-saved key.
-        body: JSON.stringify({ api_key: settings.ai_api_key, model: settings.ai_model }),
       });
       const result = await response.json();
 
@@ -180,54 +162,10 @@ const Settings = () => {
         setAiUsage(result.ai_usage);
       }
     } catch (error) {
-      console.error("Error testing API key:", error);
-      setTestResult({ success: false, message: "An error occurred while testing the API key." });
+      console.error("Error testing AI connection:", error);
+      setTestResult({ success: false, message: "An error occurred while testing the connection." });
     } finally {
       setTestingKey(false);
-    }
-  };
-
-  const handleRemoveApiKey = async () => {
-    if (
-      !window.confirm(
-        "Remove the saved API key? You won't be able to generate AI keyword suggestions until you add a new one."
-      )
-    ) {
-      return;
-    }
-
-    setLoading(true);
-    setMessage({ type: "", text: "" });
-
-    try {
-      const response = await fetch(CONTENT_MOOD_ANALYZER?.apiUrl + "/settings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce,
-        },
-        body: JSON.stringify({ ai_api_key_remove: true }),
-      });
-      const result = await response.json();
-
-      if (result.success) {
-        setSettings((prev) => ({ ...prev, ...result.settings, ai_api_key: "" }));
-        setIsEditingApiKey(true);
-        setMessage({ type: "success", text: "API key removed." });
-      } else {
-        setMessage({
-          type: "error",
-          text: result.message || "Failed to remove the API key.",
-        });
-      }
-    } catch (error) {
-      console.error("Error removing API key:", error);
-      setMessage({
-        type: "error",
-        text: "An error occurred while removing the API key.",
-      });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -256,13 +194,9 @@ const Settings = () => {
               "Content-Type": "application/json",
               "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce,
             },
-            // Send the currently-selected model, not just whatever was last
-            // saved, so switching models in the dropdown takes effect
-            // immediately without requiring a Save first.
             body: JSON.stringify({
               sentiment: field.key,
               prompt,
-              model: settings.ai_model,
             }),
           });
           const result = await response.json();
@@ -378,18 +312,17 @@ const Settings = () => {
                 <button
                   type="button"
                   onClick={handleGenerateAllKeywords}
-                  disabled={generatingAll || !settings.ai_api_key_set}
+                  disabled={generatingAll}
                   className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                 >
                   {generatingAll ? "Generating…" : "✨ Generate Keywords"}
                 </button>
                 <p className="text-xs text-gray-500">
-                  {settings.ai_api_key_set
-                    ? "Fills in a field above from the category text you typed under it. Uses one request per field with text entered."
-                    : "Add a Gemini API key in the AI Analysis tab to enable this."}
+                  Fills in a field above from the category text you typed under it.
+                  Uses one request per field with text entered.
                 </p>
               </div>
-              {settings.ai_api_key_set && aiUsage && (
+              {aiUsage && (
                 <p className="text-xs text-gray-500 mt-1">
                   {aiUsage.remaining} of {aiUsage.limit} AI generations left today.
                 </p>
@@ -470,147 +403,23 @@ const Settings = () => {
                 AI Keyword Research
               </h2>
               <p className="text-gray-600 text-sm">
-                Configure the AI provider used by the "✨ Generate" buttons on the
-                General tab to research keyword suggestions for your
-                Positive/Negative/Neutral lists. AI is never used to analyze posts
-                directly — sentiment analysis always counts your keyword lists.
+                The "✨ Generate" buttons on the General tab use Google Gemini
+                (2.5 Flash) to research keyword suggestions for your
+                Positive/Negative/Neutral lists. AI is never used to analyze
+                posts directly — sentiment analysis always counts your keyword
+                lists.
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Provider
-              </label>
-              <select
-                name="ai_provider"
-                value={settings.ai_provider}
-                onChange={handleInputChange}
-                className="w-full md:w-64 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              <button
+                type="button"
+                onClick={handleTestConnection}
+                disabled={testingKey}
+                className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50"
               >
-                <option value="gemini">Google Gemini (free tier)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Model
-              </label>
-              <select
-                value={
-                  MODEL_OPTIONS.some((m) => m.value === settings.ai_model)
-                    ? settings.ai_model
-                    : "custom"
-                }
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setSettings((prev) => ({
-                    ...prev,
-                    ai_model: value === "custom" ? "" : value,
-                  }));
-                }}
-                className="w-full md:w-64 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              >
-                {MODEL_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-                <option value="custom">Custom model ID…</option>
-              </select>
-              {!MODEL_OPTIONS.some((m) => m.value === settings.ai_model) && (
-                <input
-                  type="text"
-                  value={settings.ai_model}
-                  onChange={(e) =>
-                    setSettings((prev) => ({ ...prev, ai_model: e.target.value }))
-                  }
-                  placeholder="e.g. gemini-1.5-flash-8b"
-                  className="mt-2 w-full md:w-64 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                />
-              )}
-              <p className="text-xs text-gray-500 mt-1">
-                If a key returns a quota error on one model, try another —
-                free-tier quota is sometimes allocated per model rather than
-                per key.
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Gemini API Key
-              </label>
-
-              {!isEditingApiKey && settings.ai_api_key_set ? (
-                <div className="flex gap-2 max-w-lg">
-                  <div className="flex-1 p-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 font-mono text-sm">
-                    •••• •••• •••• {settings.ai_api_key_last4}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSettings((prev) => ({ ...prev, ai_api_key: "" }));
-                      setIsEditingApiKey(true);
-                    }}
-                    className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
-                  >
-                    Change
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleTestApiKey}
-                    disabled={testingKey}
-                    className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50"
-                  >
-                    {testingKey ? "Testing..." : "Test"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleRemoveApiKey}
-                    disabled={loading}
-                    className="px-3 py-2 text-sm border border-red-300 rounded-md text-red-600 hover:bg-red-50 disabled:opacity-50"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ) : (
-                <div className="flex gap-2 max-w-lg">
-                  <input
-                    type={showApiKey ? "text" : "password"}
-                    name="ai_api_key"
-                    value={settings.ai_api_key}
-                    onChange={handleInputChange}
-                    placeholder="Paste your Gemini API key"
-                    className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowApiKey((prev) => !prev)}
-                    className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
-                  >
-                    {showApiKey ? "Hide" : "Show"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleTestApiKey}
-                    disabled={testingKey || !settings.ai_api_key}
-                    className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50"
-                  >
-                    {testingKey ? "Testing..." : "Test"}
-                  </button>
-                  {settings.ai_api_key_set && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSettings((prev) => ({ ...prev, ai_api_key: "" }));
-                        setIsEditingApiKey(false);
-                      }}
-                      className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
-                    >
-                      Cancel
-                    </button>
-                  )}
-                </div>
-              )}
+                {testingKey ? "Testing..." : "Test AI Connection"}
+              </button>
 
               {testResult && (
                 <p
@@ -622,19 +431,6 @@ const Settings = () => {
                   {testResult.message}
                 </p>
               )}
-
-              <p className="text-xs text-gray-500 mt-1">
-                Get a free key from{" "}
-                <a
-                  href="https://aistudio.google.com/apikey"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
-                >
-                  Google AI Studio
-                </a>
-                . Testing uses one request from your daily AI limit.
-              </p>
             </div>
 
             {aiUsage && (
