@@ -29,9 +29,6 @@ class Content_Mood_Data {
             'neutral_keywords'   => '',
             'badge_position'     => 'top',
             'enabled_post_types' => array( 'post' ),
-            'ai_provider'        => 'gemini',
-            'ai_model'           => 'gemini-2.0-flash',
-            'ai_api_key'         => '',
         );
 
         $current = wp_parse_args( $current, $defaults );
