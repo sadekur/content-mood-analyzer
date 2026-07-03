@@ -183,13 +183,20 @@ function cma_ai_get_usage() {
 }
 
 /**
- * Whether today's AI request count has reached the configured daily limit.
+ * Fixed daily cap on AI requests (testing + keyword generation). Not user
+ * configurable - every site gets the same allowance.
+ */
+function cma_ai_daily_limit() {
+    return 10;
+}
+
+/**
+ * Whether today's AI request count has reached the daily limit.
  */
 function cma_ai_limit_reached() {
-    $limit = (int) cma_get_setting( 'ai_daily_limit', 100 );
     $usage = cma_ai_get_usage();
 
-    return $usage['count'] >= $limit;
+    return $usage['count'] >= cma_ai_daily_limit();
 }
 
 /**
