@@ -70,21 +70,6 @@ class API {
                             return true;
                         }
                     ),
-                    'ai_provider' => array(
-                        'sanitize_callback' => 'sanitize_text_field',
-                        'validate_callback' => function( $param ) {
-                            return in_array( $param, array( 'gemini' ), true );
-                        }
-                    ),
-                    'ai_model' => array(
-                        'sanitize_callback' => 'sanitize_text_field',
-                    ),
-                    'ai_api_key' => array(
-                        'sanitize_callback' => 'sanitize_text_field',
-                    ),
-                    'ai_api_key_remove' => array(
-                        'sanitize_callback' => 'rest_sanitize_boolean',
-                    ),
                 ),
             )
         );
