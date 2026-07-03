@@ -488,7 +488,6 @@ class Content_Mood_Data {
             'ai_provider'        => 'gemini',
             'ai_model'           => 'gemini-2.0-flash',
             'ai_api_key'         => '',
-            'ai_daily_limit'     => 100,
         );
 
         $settings = wp_parse_args( $settings, $defaults );
