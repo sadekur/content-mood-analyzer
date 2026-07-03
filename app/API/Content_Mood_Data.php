@@ -215,33 +215,13 @@ class Content_Mood_Data {
     }
 
     /**
-     * Test an AI API key/model with one real keyword-research request, so a
-     * bad key or an unavailable model is caught immediately instead of
-     * discovered while trying to generate real keyword suggestions. Uses the
-     * key/model from the request if provided (so unsaved values can be
-     * validated before Save), otherwise the currently saved ones.
+     * Test the (hardcoded) Gemini key/model with one real keyword-research
+     * request, so a bad key or an unavailable model is caught immediately
+     * instead of discovered while trying to generate real keyword
+     * suggestions.
      */
     public function test_ai_connection( $request ) {
-        $api_key = $request->get_param( 'api_key' );
-
-        if ( empty( $api_key ) ) {
-            $api_key = cma_get_setting( 'ai_api_key', '' );
-        }
-
-        if ( empty( $api_key ) ) {
-            return rest_ensure_response( array(
-                'success' => false,
-                'message' => __( 'Paste an API key first.', 'content-mood-analyzer' ),
-            ) );
-        }
-
-        $model = $request->get_param( 'model' );
-
-        if ( empty( $model ) ) {
-            $model = cma_get_setting( 'ai_model', 'gemini-2.0-flash' );
-        }
-
-        $provider = new Gemini_Provider( $api_key, $model );
+        $provider = cma_get_ai_provider();
         $keywords = $provider->generate_keywords( 'positive', 'general test' );
 
         if ( null === $keywords ) {
