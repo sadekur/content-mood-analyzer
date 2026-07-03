@@ -51,7 +51,6 @@ const Settings = () => {
     ai_api_key: "",
     ai_api_key_set: false,
     ai_api_key_last4: "",
-    ai_daily_limit: 100,
   });
   const [aiUsage, setAiUsage] = useState(null);
   const [isEditingApiKey, setIsEditingApiKey] = useState(false);
