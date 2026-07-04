@@ -9,6 +9,11 @@ import Dashboard from "./pages/Dashboard";
 import Sentiments from "./pages/Sentiments";
 import Settings from "./pages/Settings";
 
+// The Overview/top-level menu link has no #hash (unlike Dashboard/All
+// Sentiments/Settings), so it needs to be told apart from the other
+// submenu links in a couple of places below.
+const isOverviewHref = (href) => href.indexOf("#") === -1 && /page=content-mood-analyzer$/.test(href);
+
 const App = () => {
     const [activeTab, setActiveTab] = useState("");
     const [page, setPage] = useState(1);
