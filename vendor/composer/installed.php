@@ -3,7 +3,7 @@
         'name' => 'content-mood/analyzer',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '9b5fcbfe0c02afaa8433370f61376ce3e4fcd09f',
+        'reference' => 'b8111381984cb8096a7d572c68f6ac6899394439',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'content-mood/analyzer' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '9b5fcbfe0c02afaa8433370f61376ce3e4fcd09f',
+            'reference' => 'b8111381984cb8096a7d572c68f6ac6899394439',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

@@ -37,11 +37,13 @@ rsync -a \
 
 echo "==> Re-installing production-only vendor/ into the package"
 (cd "$BUILD_DIR" && composer install --no-dev --optimize-autoloader --quiet)
+sync
 
 echo "==> Zipping"
 mkdir -p "${ROOT_DIR}/release"
 rm -f "$ZIP_PATH"
 (cd "$(dirname "$BUILD_DIR")" && zip -rq "$ZIP_PATH" "$PLUGIN_SLUG")
+sync
 
 echo "==> Sanity check: dev-only paths must NOT be in the zip"
 if unzip -l "$ZIP_PATH" | grep -E '/\.git/|/\.claude/|/node_modules/|/cloudflare-worker/|/svn-assets/|CLAUDE\.md'; then
