@@ -56,7 +56,11 @@ By default, Posts. You can enable Pages and other public post types in Settings 
 
 = Will bulk analysis time out on a site with thousands of posts? =
 
-No. Bulk analysis runs in the background in small batches and reports live progress, so it's safe to start and navigate away.
+No. Bulk analysis runs in the background in small batches and reports live progress, so it's safe to start and navigate away. You can cancel a run in progress at any time; posts already analyzed keep their sentiment.
+
+= What does "Clear Sentiment Cache" do? =
+
+Post lists shown in the dashboard are cached briefly for performance. If you've just changed your keyword lists or edited posts directly and the counts look out of date, click "Clear Sentiment Cache" in Settings to remove the cached data - it only clears the cache, never your actual sentiment results, so it's safe to run anytime.
 
 = How do I show sentiment on my site? =
 
