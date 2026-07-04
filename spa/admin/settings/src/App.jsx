@@ -35,6 +35,33 @@ const App = () => {
         return () => window.removeEventListener("hashchange", handleHashChange);
     }, []);
 
+    // WordPress only ever sees ?page=content-mood-analyzer - it has no idea
+    // about the #/dashboard-style hash this SPA routes on, so its
+    // server-rendered "current" submenu highlight always lands on Overview.
+    // Fix it up client-side to match whichever hash-page is actually shown.
+    useEffect(() => {
+        const topLevelMenu = document.getElementById("toplevel_page_content-mood-analyzer");
+        if (!topLevelMenu) return;
+
+        const submenuLinks = topLevelMenu.querySelectorAll(".wp-submenu a");
+        submenuLinks.forEach((link) => {
+            link.parentElement.classList.remove("current");
+            link.removeAttribute("aria-current");
+        });
+
+        const isMatch = (href) =>
+            activeTab && activeTab !== "/"
+                ? href.endsWith("#" + activeTab)
+                : href.indexOf("#") === -1 && /page=content-mood-analyzer$/.test(href);
+
+        submenuLinks.forEach((link) => {
+            if (isMatch(link.getAttribute("href") || "")) {
+                link.parentElement.classList.add("current");
+                link.setAttribute("aria-current", "page");
+            }
+        });
+    }, [activeTab]);
+
     const renderContent = () => {
         switch (activeTab) {
             case "":
