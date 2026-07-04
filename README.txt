@@ -66,6 +66,26 @@ Post lists shown in the dashboard are cached briefly for performance. If you've 
 
 Badges appear automatically on single posts and on excerpt/archive cards once a post has been analyzed. You can also add the `[sentiment-filter]` shortcode to any page to let visitors filter content by mood.
 
+== External services ==
+
+This plugin uses the Google Gemini API only for the optional "Generate Keywords" and "Test AI Connection" features on the Settings page, to research a keyword list from a short category description you provide - it is never used to read or analyze your posts.
+
+What is sent, and when: when you click "Generate Keywords" or "Test AI Connection", the plain-text category description you typed (e.g. "Customer & Product Reviews") is sent - nothing is sent automatically or in the background. This request is relayed through a proxy service the plugin author operates (a Cloudflare Worker) so that no API key needs to be configured on your site; the request is then forwarded to Google's Gemini API, which generates and returns the keyword suggestions.
+
+This service is provided by Google LLC:
+- Terms of Service: https://ai.google.dev/gemini-api/terms
+- Privacy Policy: https://policies.google.com/privacy
+
+== Screenshots ==
+
+1. Overview - at-a-glance sentiment counts across your site, with quick links to the other screens.
+2. Dashboard - sentiment distribution chart, a 30/90-day trend line, and recently analyzed posts.
+3. All Sentiments - browse and filter every analyzed post by mood, with pagination.
+4. Settings (General) - keyword lists with AI-assisted research, post type selection, badge display, bulk analysis, and cache controls.
+5. Settings (AI Analysis) - AI keyword research status, connection test, and daily usage.
+6. Mood badges shown automatically on archive/blog excerpt cards.
+7. Mood badge shown on a single post.
+
 == Changelog ==
 
 = 1.0.0 =
