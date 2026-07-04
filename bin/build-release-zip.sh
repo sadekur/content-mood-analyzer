@@ -60,7 +60,15 @@ fi
 
 echo "==> Sanity check: required runtime paths must BE in the zip"
 for required in vendor/autoload.php build/admin.bundle.js build/public.bundle.js; do
-    if ! unzip -l "$ZIP_PATH" | grep -q "$PLUGIN_SLUG/$required"; then
+    found=0
+    for attempt in 1 2 3 4 5; do
+        if unzip -l "$ZIP_PATH" | grep -q "$PLUGIN_SLUG/$required"; then
+            found=1
+            break
+        fi
+        sleep 1
+    done
+    if [ "$found" -ne 1 ]; then
         echo "FAILED: required file missing from zip: $required" >&2
         exit 1
     fi
