@@ -2,7 +2,7 @@
 Contributors: sadekur
 Tags: content, mood, analysis, sentiment, posts, wordpress
 Requires at least: 6.1
-Tested up to: 6.4
+Tested up to: 6.9.4
 Stable tag: 1.0.0
 Requires PHP: 7.4
 License: GPL v2 or later
