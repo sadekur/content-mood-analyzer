@@ -1,0 +1,15 @@
+.git
+.github
+.claude
+node_modules
+cloudflare-worker
+svn-assets
+tests
+bin
+coverage
+.wordpress-org
+.distignore
+.gitignore
+.editorconfig
+CLAUDE.md
+*.log
