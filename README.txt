@@ -17,11 +17,12 @@ Content Mood Analyzer scores your published content as positive, negative, or ne
 Optionally, AI (Google Gemini) can help you *research* those keyword lists: describe a category (e.g. "Customer & Product Reviews") and it generates a starting list of keywords for you to review and edit. This works out of the box with no setup and no API key of your own required - the plugin includes a shared, rate-limited AI helper, capped at a fair daily number of requests per site so it stays free for everyone.
 
 Features:
-- Analyze individual posts, or run a background bulk analysis across every existing post without timing out, even on large sites
+- Analyze individual posts, or run a background bulk analysis across every existing post without timing out, even on large sites - with a live progress bar and the option to cancel a run in progress
 - Choose which content types get analyzed (Posts, Pages, and other public post types), not just Posts
 - Mood badges shown automatically on single posts and on archive/blog/category/search excerpts
 - `[sentiment-filter]` shortcode to let visitors browse content by mood on the front end
 - Fully customizable keyword lists for each mood, with optional AI-assisted research to help build them
+- One-click cache clearing if sentiment counts look stale after editing keywords or posts directly
 - REST API for reading sentiment data and integrating with other tools
 - React-powered admin dashboard: an overview, a sentiment-distribution chart with a 30/90-day trend, a searchable/paginated post browser, and settings
 
