@@ -10,6 +10,10 @@
 # (respecting .distignore) rather than from git, so gitignored-but-required
 # files are never accidentally left out.
 #
+# Never touches the developer's own vendor/ (dev dependencies stay intact) -
+# a fresh, production-only vendor/ is generated directly inside the package
+# build directory instead.
+#
 set -euo pipefail
 
 PLUGIN_SLUG="content-mood-analyzer"
@@ -19,31 +23,34 @@ ZIP_PATH="${ROOT_DIR}/release/${PLUGIN_SLUG}.zip"
 
 cd "$ROOT_DIR"
 
-echo "==> Installing production Composer dependencies"
-composer install --no-dev --optimize-autoloader --quiet
-
 echo "==> Building JS/CSS bundles"
 npm run build --silent
-
-echo "==> Restoring dev Composer dependencies (for local development)"
-composer install --quiet
 
 echo "==> Assembling clean plugin directory (respecting .distignore)"
 mkdir -p "$BUILD_DIR"
 rsync -a \
     --exclude-from="${ROOT_DIR}/.distignore" \
     --exclude='release' \
+    --exclude='vendor' \
     "${ROOT_DIR}/" "$BUILD_DIR/"
+sync
 
-echo "==> Re-installing production-only vendor/ into the package"
+echo "==> Installing production-only Composer dependencies into the package"
 (cd "$BUILD_DIR" && composer install --no-dev --optimize-autoloader --quiet)
 sync
+
+# This environment mounts the working directory over a network/sync layer
+# (Local by Flywheel) with occasionally-lagged read-after-write visibility
+# between processes; a short pause avoids flaky "file missing" failures
+# below on such setups. Harmless no-op on a normal local filesystem.
+sleep 2
 
 echo "==> Zipping"
 mkdir -p "${ROOT_DIR}/release"
 rm -f "$ZIP_PATH"
 (cd "$(dirname "$BUILD_DIR")" && zip -rq "$ZIP_PATH" "$PLUGIN_SLUG")
 sync
+sleep 1
 
 echo "==> Sanity check: dev-only paths must NOT be in the zip"
 if unzip -l "$ZIP_PATH" | grep -E '/\.git/|/\.claude/|/node_modules/|/cloudflare-worker/|/svn-assets/|CLAUDE\.md'; then
