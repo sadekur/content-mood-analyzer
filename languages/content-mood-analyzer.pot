@@ -1,0 +1,200 @@
+# Copyright (C) 2026 Sadekur Rahman
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Content Mood Analyzer 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/content-mood-analyzer\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-07-04T00:00:00+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: manual-extraction\n"
+"X-Domain: content-mood-analyzer\n"
+
+#: app/Controllers/Front/Shortcode.php:87
+msgid "&laquo; Previous"
+msgstr ""
+
+#: app/API/Content_Mood_Data.php:137
+msgid "A bulk analysis is already running."
+msgstr ""
+
+#: app/Services/AI/Proxy_Provider.php:82
+msgid "AI proxy request failed with HTTP %d."
+msgstr ""
+
+#: app/Controllers/Admin/Menu.php:67 app/Controllers/Admin/Menu.php:68
+msgid "All Sentiments"
+msgstr ""
+
+#: app/Controllers/Common/Assets.php:33
+msgid "Analyzing posts..."
+msgstr ""
+
+#: app/API/Content_Mood_Data.php:169
+msgid "Bulk analysis cancelled."
+msgstr ""
+
+#: app/API/Content_Mood_Data.php:144
+msgid "Bulk analysis started in the background."
+msgstr ""
+
+#: app/Controllers/Common/Ajax.php:33
+msgid "Bulk update completed"
+msgstr ""
+
+#: app/Controllers/Common/Assets.php:37
+msgid "Cache cleared successfully!"
+msgstr ""
+
+#: app/API/Content_Mood_Data.php:200
+msgid "Cache cleared successfully."
+msgstr ""
+
+#: app/Controllers/Common/Assets.php:36
+msgid "Clearing cache..."
+msgstr ""
+
+#: app/Controllers/Admin/Menu.php:35 app/Controllers/Admin/Menu.php:36
+msgid "Content Mood Analyzer"
+msgstr ""
+
+#: app/Services/AI/Proxy_Provider.php:66
+msgid "Could not reach the AI proxy: %s"
+msgstr ""
+
+#: app/API/Content_Mood_Data.php:271
+msgid "Daily AI request limit reached. Try again after it resets at midnight."
+msgstr ""
+
+#: app/Controllers/Admin/Menu.php:57 app/Controllers/Admin/Menu.php:58
+msgid "Dashboard"
+msgstr ""
+
+#: app/API/Content_Mood_Data.php:264
+msgid "Enter a category description first."
+msgstr ""
+
+#: app/Controllers/Common/Assets.php:35
+msgid "Error analyzing posts. Please try again."
+msgstr ""
+
+#: app/Controllers/Common/Assets.php:38
+msgid "Error clearing cache. Please try again."
+msgstr ""
+
+#: app/Controllers/Common/Assets.php:41 app/API/Content_Mood_Data.php:91
+msgid "Failed to save settings."
+msgstr ""
+
+#: app/Controllers/Common/API.php:228
+msgid "Filter by from date"
+msgstr ""
+
+#: app/Controllers/Common/API.php:197
+msgid "Filter by sentiment type"
+msgstr ""
+
+#: app/Controllers/Common/API.php:233
+msgid "Filter by to date"
+msgstr ""
+
+#: app/API/Content_Mood_Data.php:293
+msgid "Keywords generated."
+msgstr ""
+
+#: app/Helpers/functions.php:45
+msgid "Negative"
+msgstr ""
+
+#: app/Helpers/functions.php:46
+msgid "Neutral"
+msgstr ""
+
+#: app/Controllers/Front/Shortcode.php:88
+msgid "Next &raquo;"
+msgstr ""
+
+#: app/Controllers/Front/Shortcode.php:96
+msgid "No %s posts found."
+msgstr ""
+
+#: app/API/Content_Mood_Data.php:328
+msgid "No posts found."
+msgstr ""
+
+#: app/Controllers/Common/API.php:215
+msgid "Number of posts per page"
+msgstr ""
+
+#: app/Controllers/Admin/Menu.php:47 app/Controllers/Admin/Menu.php:48
+msgid "Overview"
+msgstr ""
+
+#: app/Controllers/Common/API.php:209
+msgid "Page number for pagination"
+msgstr ""
+
+#: app/Controllers/Common/Ajax.php:18
+msgid "Permission denied"
+msgstr ""
+
+#: app/Helpers/functions.php:44
+msgid "Positive"
+msgstr ""
+
+#: app/API/Content_Mood_Data.php:123
+msgid "Post analyzed successfully."
+msgstr ""
+
+#: app/API/Content_Mood_Data.php:103 app/API/Content_Mood_Data.php:398
+msgid "Post not found."
+msgstr ""
+
+#: app/Controllers/Admin/Menu.php:77 app/Controllers/Admin/Menu.php:78
+msgid "Settings"
+msgstr ""
+
+#: app/Controllers/Common/Assets.php:40
+msgid "Settings saved successfully!"
+msgstr ""
+
+#: app/API/Content_Mood_Data.php:85
+msgid "Settings saved successfully."
+msgstr ""
+
+#: app/Controllers/Common/API.php:221
+msgid "Sort order"
+msgstr ""
+
+#: app/API/Content_Mood_Data.php:246
+msgid "Success! Gemini returned keywords like: %s."
+msgstr ""
+
+#: app/Controllers/Common/Assets.php:34
+msgid "Successfully analyzed {count} posts!"
+msgstr ""
+
+#: app/Services/AI/Proxy_Provider.php:94
+msgid "The AI proxy did not return any usable keywords."
+msgstr ""
+
+#: app/API/Content_Mood_Data.php:237 app/API/Content_Mood_Data.php:284
+msgid "The AI request failed for an unknown reason."
+msgstr ""
+
+#: app/Controllers/Common/API.php:250
+msgid "The post ID"
+msgstr ""
+
+#: app/API/Content_Mood_Data.php:111
+msgid "This post type is not enabled for sentiment analysis."
+msgstr ""
+
+#: app/Controllers/Common/Assets.php:39
+msgid "This will re-analyze all posts. Continue?"
+msgstr ""
+
