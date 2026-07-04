@@ -70,7 +70,7 @@ final class Content_Mood_Analyzer{
 		// the URL is just a public endpoint, and the token only filters out
 		// drive-by requests (the real Gemini key lives solely in the
 		// Worker's own secrets, never in this plugin's source).
-		define( 'CONTENT_MOOD_ANALYZER_AI_PROXY_URL', 'https://content-mood-analyzer-ai-proxy.YOUR-SUBDOMAIN.workers.dev' );
+		define( 'CONTENT_MOOD_ANALYZER_AI_PROXY_URL', 'https://content-mood-analyzer-ai-proxy.soikut.workers.dev' );
 		define( 'CONTENT_MOOD_ANALYZER_AI_PROXY_TOKEN', 'b6fed5e964baaa2dcd3c7969870f84c70791b7cd02afdf5e' );
 	}
 
