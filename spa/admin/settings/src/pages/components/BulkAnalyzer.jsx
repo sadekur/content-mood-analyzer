@@ -204,7 +204,7 @@ const BulkAnalyzer = () => {
                 Starting…
               </>
             ) : queue && (queue.status === "complete" || queue.status === "cancelled") ? (
-              "Run Again"
+              "Bulk Analyzer"
             ) : (
               "Start Bulk Analysis Now"
             )}
