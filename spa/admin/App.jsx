@@ -4,10 +4,10 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // Import your pages
-import Overview from "./pages/Overview";
-import Dashboard from "./pages/Dashboard";
-import Sentiments from "./pages/Sentiments";
-import Settings from "./pages/Settings";
+import Overview from "./pages/Overview/page";
+import Dashboard from "./pages/Dashboard/page";
+import Sentiments from "./pages/Sentiments/page";
+import Settings from "./pages/Settings/page";
 
 // The Overview/top-level menu link has no #hash (unlike Dashboard/All
 // Sentiments/Settings), so it needs to be told apart from the other
