@@ -55,9 +55,7 @@ const App = () => {
         });
 
         const isMatch = (href) =>
-            activeTab && activeTab !== "/"
-                ? href.endsWith("#" + activeTab)
-                : href.indexOf("#") === -1 && /page=content-mood-analyzer$/.test(href);
+            activeTab && activeTab !== "/" ? href.endsWith("#" + activeTab) : isOverviewHref(href);
 
         submenuLinks.forEach((link) => {
             if (isMatch(link.getAttribute("href") || "")) {
@@ -66,6 +64,35 @@ const App = () => {
             }
         });
     }, [activeTab]);
+
+    // Going from a #hash URL to the Overview/top-level link's bare, hash-less
+    // URL is a real navigation as far as the browser is concerned (unlike
+    // switching between two #hash URLs, which browsers treat as instant),
+    // so clicking it mid-SPA caused a full page reload. Intercept those
+    // clicks and just clear the hash ourselves instead.
+    useEffect(() => {
+        const topLevelMenu = document.getElementById("toplevel_page_content-mood-analyzer");
+        if (!topLevelMenu) return;
+
+        const handleClick = (event) => {
+            const link = event.target.closest("a");
+            if (!link || !isOverviewHref(link.getAttribute("href") || "")) return;
+
+            event.preventDefault();
+
+            if (window.location.hash) {
+                window.location.hash = "";
+            } else {
+                // Already at Overview with an empty hash - clearing it again
+                // wouldn't fire a hashchange event, so update state directly.
+                setActiveTab("");
+                setPage(1);
+            }
+        };
+
+        topLevelMenu.addEventListener("click", handleClick);
+        return () => topLevelMenu.removeEventListener("click", handleClick);
+    }, []);
 
     const renderContent = () => {
         switch (activeTab) {
