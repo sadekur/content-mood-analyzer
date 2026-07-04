@@ -7,7 +7,7 @@
  * Requires at least: 6.1
  * Requires PHP:      7.4
  * Author:            Sadekur Rahman
- * Author URI:        https://sadekurrahman.net
+ * Author URI:        https://github.com/sadekur/
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       content-mood-analyzer
