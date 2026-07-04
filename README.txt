@@ -1,6 +1,6 @@
 === Content Mood Analyzer ===
 Contributors: sadekur
-Tags: content, mood, analysis, sentiment, posts, wordpress
+Tags: sentiment, mood, content analysis, keywords, ai
 Requires at least: 6.1
 Tested up to: 6.9.4
 Stable tag: 1.0.0
