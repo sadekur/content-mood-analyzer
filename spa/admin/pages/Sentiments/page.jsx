@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Pagination from "../../../../common/Pagination";
+import Pagination from "../../../common/Pagination";
 
 const Sentiments = ({ page }) => {
     const [activeTab, setActiveTab] = useState("all");
