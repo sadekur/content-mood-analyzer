@@ -138,7 +138,7 @@ class Assets {
 
 			// Enqueue the built Tailwind CSS
 			wp_enqueue_style(
-				'content-mood-analyzer-tailwind',
+				'contmoan-tailwind',
 				CONTENT_MOOD_ANALYZER_URL . 'build/tailwind.build.bundle.css',
 				array(),
 				CONTENT_MOOD_ANALYZER_VERSION
