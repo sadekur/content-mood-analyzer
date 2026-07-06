@@ -214,7 +214,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="content-mood-analyzer-container max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+    <div className="contmoan-container max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Content Mood Analyzer Settings</h1>
 
       <TabNav tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
