@@ -9,7 +9,7 @@ class Shortcode {
 	 * Constructor to add all hooks.
 	 */
 	public function __construct() {
-		add_shortcode('sentiment-filter', array($this, 'sentiment_filter_shortcode'));
+		add_shortcode('contmoan-sentiment-filter', array($this, 'sentiment_filter_shortcode'));
 	}
 
 	/**
