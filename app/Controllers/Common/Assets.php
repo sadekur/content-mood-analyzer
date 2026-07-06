@@ -97,14 +97,14 @@ class Assets {
 
 			// Enqueue public React CSS bundle
 			wp_enqueue_style(
-				'content-mood-analyzer-public-react',
+				'contmoan-public-react',
 				CONTENT_MOOD_ANALYZER_URL . 'build/public.bundle.css',
 				array(),
 				CONTENT_MOOD_ANALYZER_VERSION
 			);
 
 			wp_enqueue_script( 
-				'content-mood-analyzer-public-react',
+				'contmoan-public-react',
 				CONTENT_MOOD_ANALYZER_URL . 'build/public.bundle.js',
 				array('wp-element', 'wp-components'),
 				CONTENT_MOOD_ANALYZER_VERSION, true
