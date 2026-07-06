@@ -154,8 +154,8 @@ class Assets {
 
 			wp_localize_script(
 				'contmoan-common',
-				'CONTENT_MOOD_ANALYZER',
-				apply_filters( 'content-mood-analyzer-localized_vars', $localized )
+				'CONTMOAN',
+				apply_filters( 'contmoan_localized_vars', $localized )
 			);
 		}
 	}
