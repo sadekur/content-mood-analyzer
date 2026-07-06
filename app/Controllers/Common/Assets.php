@@ -88,7 +88,7 @@ class Assets {
 			// Enqueue public-specific CSS (if exists, otherwise skip)
 			if (file_exists(CONTENT_MOOD_ANALYZER_PATH . 'assets/public/css/public.css')) {
 				wp_enqueue_style(
-					'content-mood-analyzer-public',
+					'contmoan-public',
 					CONTENT_MOOD_ANALYZER_ASSETS . '/public/css/public.css',
 					array(),
 					CONTENT_MOOD_ANALYZER_VERSION
@@ -111,7 +111,7 @@ class Assets {
 			);
 
 			wp_enqueue_script(
-				'content-mood-analyzer-public',
+				'contmoan-public',
 				CONTENT_MOOD_ANALYZER_ASSETS . '/public/js/init.js',
 				array( 'jquery' ),
 				CONTENT_MOOD_ANALYZER_VERSION,
