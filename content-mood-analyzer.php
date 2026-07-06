@@ -24,7 +24,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 /**
  * The main plugin class
  */
-final class Content_Mood_Analyzer{
+final class CONTMOAN_Plugin{
 
 	/**
 	 * Plugin version
