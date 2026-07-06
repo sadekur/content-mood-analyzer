@@ -129,7 +129,7 @@ class Assets {
 			// Enqueue common CSS (if exists, otherwise skip)
 			if (file_exists(CONTENT_MOOD_ANALYZER_PATH . 'assets/common/css/common.css')) {
 				wp_enqueue_style(
-					'content-mood-analyzer-common',
+					'contmoan-common',
 					CONTENT_MOOD_ANALYZER_ASSETS . '/common/css/common.css',
 					array(),
 					CONTENT_MOOD_ANALYZER_VERSION
@@ -145,7 +145,7 @@ class Assets {
 			);
 
 			wp_enqueue_script(
-				'content-mood-analyzer-common',
+				'contmoan-common',
 				CONTENT_MOOD_ANALYZER_ASSETS . '/common/js/common.js',
 				array( 'jquery' ),
 				CONTENT_MOOD_ANALYZER_VERSION,
@@ -153,7 +153,7 @@ class Assets {
 			);
 
 			wp_localize_script(
-				'content-mood-analyzer-common',
+				'contmoan-common',
 				'CONTENT_MOOD_ANALYZER',
 				apply_filters( 'content-mood-analyzer-localized_vars', $localized )
 			);
