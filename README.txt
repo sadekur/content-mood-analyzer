@@ -20,7 +20,7 @@ Features:
 - Analyze individual posts, or run a background bulk analysis across every existing post without timing out, even on large sites - with a live progress bar and the option to cancel a run in progress
 - Choose which content types get analyzed (Posts, Pages, and other public post types), not just Posts
 - Mood badges shown automatically on single posts and on archive/blog/category/search excerpts
-- `[sentiment-filter]` shortcode to let visitors browse content by mood on the front end
+- `[contmoan-sentiment-filter]` shortcode to let visitors browse content by mood on the front end
 - Fully customizable keyword lists for each mood, with optional AI-assisted research to help build them
 - One-click cache clearing if sentiment counts look stale after editing keywords or posts directly
 - REST API for reading sentiment data and integrating with other tools
@@ -64,7 +64,7 @@ Post lists shown in the dashboard are cached briefly for performance. If you've 
 
 = How do I show sentiment on my site? =
 
-Badges appear automatically on single posts and on excerpt/archive cards once a post has been analyzed. You can also add the `[sentiment-filter]` shortcode to any page to let visitors filter content by mood.
+Badges appear automatically on single posts and on excerpt/archive cards once a post has been analyzed. You can also add the `[contmoan-sentiment-filter]` shortcode to any page to let visitors filter content by mood.
 
 == External services ==
 
