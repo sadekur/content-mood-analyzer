@@ -4,8 +4,8 @@ import React, { useEffect, useRef, useState } from "react";
 const POLL_INTERVAL_MS = 2000;
 
 const fetchStatus = () =>
-  fetch(CONTENT_MOOD_ANALYZER?.apiUrl + "/analyze/bulk/status", {
-    headers: { "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce },
+  fetch(CONTMOAN?.apiUrl + "/analyze/bulk/status", {
+    headers: { "X-WP-Nonce": CONTMOAN?.nonce },
   }).then((res) => res.json());
 
 const BulkAnalyzer = () => {
@@ -66,11 +66,11 @@ const BulkAnalyzer = () => {
     setError("");
 
     try {
-      const response = await fetch(CONTENT_MOOD_ANALYZER?.apiUrl + "/analyze/bulk", {
+      const response = await fetch(CONTMOAN?.apiUrl + "/analyze/bulk", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-WP-Nonce": CONTENT_MOOD_ANALYZER.nonce,
+          "X-WP-Nonce": CONTMOAN.nonce,
         },
       });
       const data = await response.json();
@@ -91,11 +91,11 @@ const BulkAnalyzer = () => {
 
   const cancelBulkAnalysis = async () => {
     try {
-      const response = await fetch(CONTENT_MOOD_ANALYZER?.apiUrl + "/analyze/bulk/cancel", {
+      const response = await fetch(CONTMOAN?.apiUrl + "/analyze/bulk/cancel", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-WP-Nonce": CONTENT_MOOD_ANALYZER.nonce,
+          "X-WP-Nonce": CONTMOAN.nonce,
         },
       });
       const data = await response.json();

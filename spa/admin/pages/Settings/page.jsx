@@ -38,9 +38,9 @@ const Settings = () => {
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch(CONTENT_MOOD_ANALYZER?.apiUrl + "/settings", {
+      const response = await fetch(CONTMOAN?.apiUrl + "/settings", {
         headers: {
-          "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce,
+          "X-WP-Nonce": CONTMOAN?.nonce,
         },
       });
       const result = await response.json();
@@ -84,11 +84,11 @@ const Settings = () => {
     setMessage({ type: "", text: "" });
 
     try {
-      const response = await fetch(CONTENT_MOOD_ANALYZER?.apiUrl + "/settings", {
+      const response = await fetch(CONTMOAN?.apiUrl + "/settings", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce,
+          "X-WP-Nonce": CONTMOAN?.nonce,
         },
         body: JSON.stringify(settings),
       });
@@ -127,11 +127,11 @@ const Settings = () => {
     setTestResult(null);
 
     try {
-      const response = await fetch(CONTENT_MOOD_ANALYZER?.apiUrl + "/ai/test", {
+      const response = await fetch(CONTMOAN?.apiUrl + "/ai/test", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce,
+          "X-WP-Nonce": CONTMOAN?.nonce,
         },
       });
       const result = await response.json();
@@ -171,11 +171,11 @@ const Settings = () => {
         }
 
         try {
-          const response = await fetch(CONTENT_MOOD_ANALYZER?.apiUrl + "/ai/generate-keywords", {
+          const response = await fetch(CONTMOAN?.apiUrl + "/ai/generate-keywords", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce,
+              "X-WP-Nonce": CONTMOAN?.nonce,
             },
             body: JSON.stringify({
               sentiment: field.key,

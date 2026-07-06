@@ -32,8 +32,8 @@ const Dashboard = () => {
             setLoading(true);
             try {
                 const response = await fetch(
-                    `${CONTENT_MOOD_ANALYZER?.apiUrl}/posts?page=1&per_page=5`,
-                    { headers: { "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce } }
+                    `${CONTMOAN?.apiUrl}/posts?page=1&per_page=5`,
+                    { headers: { "X-WP-Nonce": CONTMOAN?.nonce } }
                 );
                 const data = await response.json();
 
@@ -58,8 +58,8 @@ const Dashboard = () => {
             setTrendLoading(true);
             try {
                 const response = await fetch(
-                    `${CONTENT_MOOD_ANALYZER?.apiUrl}/trend?days=${trendDays}`,
-                    { headers: { "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce } }
+                    `${CONTMOAN?.apiUrl}/trend?days=${trendDays}`,
+                    { headers: { "X-WP-Nonce": CONTMOAN?.nonce } }
                 );
                 const data = await response.json();
 

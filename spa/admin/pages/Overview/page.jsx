@@ -21,8 +21,8 @@ const Overview = () => {
         const fetchCounts = async () => {
             setLoading(true);
             try {
-                const response = await fetch(`${CONTENT_MOOD_ANALYZER?.apiUrl}/posts?per_page=1`, {
-                    headers: { "X-WP-Nonce": CONTENT_MOOD_ANALYZER?.nonce },
+                const response = await fetch(`${CONTMOAN?.apiUrl}/posts?per_page=1`, {
+                    headers: { "X-WP-Nonce": CONTMOAN?.nonce },
                 });
                 const data = await response.json();
                 if (data.success && data.sentiment_counts) {

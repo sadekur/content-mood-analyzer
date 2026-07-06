@@ -12,12 +12,12 @@ const ClearCache = () => {
 
     try {
       const response = await fetch(
-        CONTENT_MOOD_ANALYZER.apiUrl + "/cache/clear",
+        CONTMOAN.apiUrl + "/cache/clear",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-WP-Nonce": CONTENT_MOOD_ANALYZER.nonce,
+            "X-WP-Nonce": CONTMOAN.nonce,
           },
         }
       );

@@ -13,7 +13,7 @@ const App = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `${window.CONTENT_MOOD_ANALYZER?.apiUrl}/posts/${selectedSentiment}?per_page=5&page=1`
+        `${window.CONTMOAN?.apiUrl}/posts/${selectedSentiment}?per_page=5&page=1`
       );
       const result = await response.json();
       if (result.success) {

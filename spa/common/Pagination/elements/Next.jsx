@@ -1,7 +1,7 @@
 import React from "react";
 
 export default function Next({ baseSlug = "dashboard", current = 1, total = 1, assets = "" }) {
-    const nextIcon = `${assets || CONTENT_MOOD_ANALYZER?.assets}admin/img/icons/Next.png`;
+    const nextIcon = `${assets || CONTMOAN?.assets}admin/img/icons/Next.png`;
 
     return (
         <>

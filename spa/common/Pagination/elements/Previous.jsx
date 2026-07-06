@@ -1,7 +1,7 @@
 import React from "react";
 
 export default function Previous({ baseSlug = "dashboard", current = 1, assets = "" }) {
-    const backIcon = `${assets || CONTENT_MOOD_ANALYZER?.assets}admin/img/icons/Back.png`;
+    const backIcon = `${assets || CONTMOAN?.assets}admin/img/icons/Back.png`;
 
     return (
         <>
