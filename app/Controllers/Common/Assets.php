@@ -62,14 +62,14 @@ class Assets {
 
 			// Enqueue admin React CSS bundle
 			wp_enqueue_style(
-				'content-mood-analyzer-admin-react',
+				'contmoan-admin-react',
 				CONTENT_MOOD_ANALYZER_URL . 'build/admin.bundle.css',
 				array(),
 				CONTENT_MOOD_ANALYZER_VERSION
 			);
 
 			wp_enqueue_script(
-				'content-mood-analyzer-admin-react',
+				'contmoan-admin-react',
 				CONTENT_MOOD_ANALYZER_URL . 'build/admin.bundle.js',
 				array('wp-element', 'wp-components'),
 				CONTENT_MOOD_ANALYZER_VERSION,
