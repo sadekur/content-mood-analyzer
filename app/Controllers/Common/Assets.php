@@ -53,7 +53,7 @@ class Assets {
 			// Enqueue admin-specific CSS (if exists, otherwise skip)
 			if ( file_exists(CONTENT_MOOD_ANALYZER_PATH . 'assets/admin/css/settings.css' ) ) {
 				wp_enqueue_style(
-					'content-mood-analyzer-settings',
+					'contmoan-settings',
 					CONTENT_MOOD_ANALYZER_ASSETS . '/admin/css/settings.css',
 					array(),
 					CONTENT_MOOD_ANALYZER_VERSION
