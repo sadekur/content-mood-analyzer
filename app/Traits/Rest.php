@@ -1,5 +1,5 @@
 <?php
-namespace Content_Mood\Traits;
+namespace Contmoan\Traits;
 
 defined( 'ABSPATH' ) || exit;
 

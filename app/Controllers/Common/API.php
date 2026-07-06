@@ -1,8 +1,8 @@
 <?php
-namespace Content_Mood\Controllers\Common;
+namespace Contmoan\Controllers\Common;
 use WP_REST_Server;
-use Content_Mood\API\Content_Mood_Data;
-use Content_Mood\Traits\Rest;
+use Contmoan\API\Content_Mood_Data;
+use Contmoan\Traits\Rest;
 
 defined( 'ABSPATH' ) || exit;
 

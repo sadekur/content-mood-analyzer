@@ -83,19 +83,19 @@ final class Content_Mood_Analyzer{
 
 		contmoan_migrate_legacy_settings_option();
 
-		new Content_Mood\Controllers\Common\Assets();
-		new Content_Mood\Controllers\Common\Activation();
-		new Content_Mood\Controllers\Common\API();
+		new Contmoan\Controllers\Common\Assets();
+		new Contmoan\Controllers\Common\Activation();
+		new Contmoan\Controllers\Common\API();
 
 		// if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
-		// 	 new Content_Mood\Controllers\Common\Ajax();
+		// 	 new Contmoan\Controllers\Common\Ajax();
 		// }
 
 		if ( is_admin() ) {
-			new Content_Mood\Controllers\Admin\Menu();
+			new Contmoan\Controllers\Admin\Menu();
 		} else {
-			new Content_Mood\Controllers\Front\Shortcode();
-		    new Content_Mood\Controllers\Front\Front();
+			new Contmoan\Controllers\Front\Shortcode();
+		    new Contmoan\Controllers\Front\Front();
 		}
 
 	}

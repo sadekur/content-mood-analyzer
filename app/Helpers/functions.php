@@ -147,7 +147,7 @@ function contmoan_perform_sentiment_analysis( $post ) {
  * added without touching the REST endpoint that calls this.
  */
 function contmoan_get_ai_provider() {
-    return new \Content_Mood\Services\AI\Proxy_Provider(
+    return new \Contmoan\Services\AI\Proxy_Provider(
         CONTMOAN_AI_PROXY_URL,
         CONTMOAN_AI_PROXY_TOKEN
     );

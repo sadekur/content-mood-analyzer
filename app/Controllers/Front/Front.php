@@ -1,6 +1,6 @@
 <?php
-namespace Content_Mood\Controllers\Front;
-use Content_Mood\Traits\Hook;
+namespace Contmoan\Controllers\Front;
+use Contmoan\Traits\Hook;
 
 defined( 'ABSPATH' ) || exit;
 

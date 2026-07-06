@@ -1,5 +1,5 @@
 <?php
-namespace Content_Mood\Controllers\Front;
+namespace Contmoan\Controllers\Front;
 
 defined( 'ABSPATH' ) || exit;
 

@@ -1,7 +1,7 @@
 <?php
-namespace Content_Mood\Controllers\Common;
+namespace Contmoan\Controllers\Common;
 
-use Content_Mood\Controllers\Front\Front;
+use Contmoan\Controllers\Front\Front;
 
 defined('ABSPATH') || exit;
 

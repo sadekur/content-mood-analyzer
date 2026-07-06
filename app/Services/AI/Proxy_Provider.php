@@ -1,5 +1,5 @@
 <?php
-namespace Content_Mood\Services\AI;
+namespace Contmoan\Services\AI;
 
 defined( 'ABSPATH' ) || exit;
 

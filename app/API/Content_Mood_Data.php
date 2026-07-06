@@ -1,10 +1,10 @@
 <?php
-namespace Content_Mood\API;
+namespace Contmoan\API;
 
 defined( 'ABSPATH' ) || exit;
 
-use Content_Mood\Traits\Rest;
-use Content_Mood\Models\Content_Mood_Model as Content_Mood_Data_Model;
+use Contmoan\Traits\Rest;
+use Contmoan\Models\Content_Mood_Model as Content_Mood_Data_Model;
 
 class Content_Mood_Data {
 

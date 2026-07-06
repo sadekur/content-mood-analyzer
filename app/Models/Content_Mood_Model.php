@@ -1,5 +1,5 @@
 <?php
-namespace Content_Mood\Models;
+namespace Contmoan\Models;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || exit;
  * Class Content_Mood_Model
  * Handles content mood data model operations.
  *
- * @package Content_Mood\Models
+ * @package Contmoan\Models
  */
 class Content_Mood_Model {
 
