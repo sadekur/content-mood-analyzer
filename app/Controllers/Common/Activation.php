@@ -17,24 +17,6 @@ class Activation {
      * Plugin activation
      */
     public function activate() {
-        // Set default keyword lists if not exists
-        if (!get_option('cma_positive_keywords')) {
-            update_option('cma_positive_keywords', "good, great, excellent, amazing, wonderful, fantastic, love, happy, perfect, best, awesome, brilliant, outstanding, superb, terrific");
-        }
-        
-        if (!get_option('cma_negative_keywords')) {
-            update_option('cma_negative_keywords', "bad, terrible, awful, horrible, poor, worst, hate, disappointing, disappointing, fail, failed, useless, pathetic, disaster, garbage");
-        }
-        
-        if (!get_option('cma_neutral_keywords')) {
-            update_option('cma_neutral_keywords', "okay, ok, average, decent, fair, moderate, acceptable, reasonable, standard, normal");
-        }
-        
-        // Set default badge position
-        if (!get_option('cma_badge_position')) {
-            update_option('cma_badge_position', 'top');
-        }
-        
         flush_rewrite_rules();
     }
 
