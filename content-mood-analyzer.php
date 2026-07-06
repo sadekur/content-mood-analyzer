@@ -58,11 +58,11 @@ final class Content_Mood_Analyzer{
 	 * @return void
 	 */
 	public function define_constants() {
-		define( 'CONTENT_MOOD_ANALYZER_VERSION', self::version );
-		define( 'CONTENT_MOOD_ANALYZER_FILE', __FILE__ );
-		define( 'CONTENT_MOOD_ANALYZER_PATH', plugin_dir_path(__FILE__) );
-		define( 'CONTENT_MOOD_ANALYZER_URL', plugin_dir_url(__FILE__) );
-		define( 'CONTENT_MOOD_ANALYZER_ASSETS', CONTENT_MOOD_ANALYZER_URL . 'assets/' );
+		define( 'CONTMOAN_VERSION', self::version );
+		define( 'CONTMOAN_FILE', __FILE__ );
+		define( 'CONTMOAN_PATH', plugin_dir_path(__FILE__) );
+		define( 'CONTMOAN_URL', plugin_dir_url(__FILE__) );
+		define( 'CONTMOAN_ASSETS', CONTMOAN_URL . 'assets/' );
 
 		// AI keyword research goes through the plugin's Cloudflare Worker
 		// proxy (see /cloudflare-worker) - not user configurable, so every
@@ -70,8 +70,8 @@ final class Content_Mood_Analyzer{
 		// the URL is just a public endpoint, and the token only filters out
 		// drive-by requests (the real Gemini key lives solely in the
 		// Worker's own secrets, never in this plugin's source).
-		define( 'CONTENT_MOOD_ANALYZER_AI_PROXY_URL', 'https://content-mood-analyzer-ai-proxy.soikut.workers.dev' );
-		define( 'CONTENT_MOOD_ANALYZER_AI_PROXY_TOKEN', 'b6fed5e964baaa2dcd3c7969870f84c70791b7cd02afdf5e' );
+		define( 'CONTMOAN_AI_PROXY_URL', 'https://content-mood-analyzer-ai-proxy.soikut.workers.dev' );
+		define( 'CONTMOAN_AI_PROXY_TOKEN', 'b6fed5e964baaa2dcd3c7969870f84c70791b7cd02afdf5e' );
 	}
 
 	/**
@@ -81,7 +81,7 @@ final class Content_Mood_Analyzer{
 	 */
 	public function init_plugin() {
 
-		cma_migrate_legacy_settings_option();
+		contmoan_migrate_legacy_settings_option();
 
 		new Content_Mood\Controllers\Common\Assets();
 		new Content_Mood\Controllers\Common\Activation();

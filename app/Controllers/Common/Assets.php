@@ -27,8 +27,8 @@ class Assets {
 			'logout_url'      => wp_logout_url(),
 			'apiUrl' 		  => rest_url('content-mood-analyzer/v1'),
 			'ajax_url'        => admin_url( 'admin-ajax.php' ),
-			'assets'          => CONTENT_MOOD_ANALYZER_ASSETS,
-			'plugin_url'      => CONTENT_MOOD_ANALYZER_URL,
+			'assets'          => CONTMOAN_ASSETS,
+			'plugin_url'      => CONTMOAN_URL,
 			'strings' 		  => array(
 				'bulkUpdating' 	=> __('Analyzing posts...', 'content-mood-analyzer'),
 				'bulkSuccess' 	=> __('Successfully analyzed {count} posts!', 'content-mood-analyzer'),
@@ -51,28 +51,28 @@ class Assets {
 			$load_common_assets = true;
 
 			// Enqueue admin-specific CSS (if exists, otherwise skip)
-			if ( file_exists(CONTENT_MOOD_ANALYZER_PATH . 'assets/admin/css/settings.css' ) ) {
+			if ( file_exists(CONTMOAN_PATH . 'assets/admin/css/settings.css' ) ) {
 				wp_enqueue_style(
 					'contmoan-settings',
-					CONTENT_MOOD_ANALYZER_ASSETS . '/admin/css/settings.css',
+					CONTMOAN_ASSETS . '/admin/css/settings.css',
 					array(),
-					CONTENT_MOOD_ANALYZER_VERSION
+					CONTMOAN_VERSION
 				);
 			}
 
 			// Enqueue admin React CSS bundle
 			wp_enqueue_style(
 				'contmoan-admin-react',
-				CONTENT_MOOD_ANALYZER_URL . 'build/admin.bundle.css',
+				CONTMOAN_URL . 'build/admin.bundle.css',
 				array(),
-				CONTENT_MOOD_ANALYZER_VERSION
+				CONTMOAN_VERSION
 			);
 
 			wp_enqueue_script(
 				'contmoan-admin-react',
-				CONTENT_MOOD_ANALYZER_URL . 'build/admin.bundle.js',
+				CONTMOAN_URL . 'build/admin.bundle.js',
 				array('wp-element', 'wp-components'),
-				CONTENT_MOOD_ANALYZER_VERSION,
+				CONTMOAN_VERSION,
 				true
 			);
 		}
@@ -86,35 +86,35 @@ class Assets {
 			$load_common_assets = true;
 			
 			// Enqueue public-specific CSS (if exists, otherwise skip)
-			if (file_exists(CONTENT_MOOD_ANALYZER_PATH . 'assets/public/css/public.css')) {
+			if (file_exists(CONTMOAN_PATH . 'assets/public/css/public.css')) {
 				wp_enqueue_style(
 					'contmoan-public',
-					CONTENT_MOOD_ANALYZER_ASSETS . '/public/css/public.css',
+					CONTMOAN_ASSETS . '/public/css/public.css',
 					array(),
-					CONTENT_MOOD_ANALYZER_VERSION
+					CONTMOAN_VERSION
 				);
 			}
 
 			// Enqueue public React CSS bundle
 			wp_enqueue_style(
 				'contmoan-public-react',
-				CONTENT_MOOD_ANALYZER_URL . 'build/public.bundle.css',
+				CONTMOAN_URL . 'build/public.bundle.css',
 				array(),
-				CONTENT_MOOD_ANALYZER_VERSION
+				CONTMOAN_VERSION
 			);
 
 			wp_enqueue_script( 
 				'contmoan-public-react',
-				CONTENT_MOOD_ANALYZER_URL . 'build/public.bundle.js',
+				CONTMOAN_URL . 'build/public.bundle.js',
 				array('wp-element', 'wp-components'),
-				CONTENT_MOOD_ANALYZER_VERSION, true
+				CONTMOAN_VERSION, true
 			);
 
 			wp_enqueue_script(
 				'contmoan-public',
-				CONTENT_MOOD_ANALYZER_ASSETS . '/public/js/init.js',
+				CONTMOAN_ASSETS . '/public/js/init.js',
 				array( 'jquery' ),
-				CONTENT_MOOD_ANALYZER_VERSION,
+				CONTMOAN_VERSION,
 				true
 			);
 		}
@@ -127,28 +127,28 @@ class Assets {
 		if ( $load_common_assets ) {
 
 			// Enqueue common CSS (if exists, otherwise skip)
-			if (file_exists(CONTENT_MOOD_ANALYZER_PATH . 'assets/common/css/common.css')) {
+			if (file_exists(CONTMOAN_PATH . 'assets/common/css/common.css')) {
 				wp_enqueue_style(
 					'contmoan-common',
-					CONTENT_MOOD_ANALYZER_ASSETS . '/common/css/common.css',
+					CONTMOAN_ASSETS . '/common/css/common.css',
 					array(),
-					CONTENT_MOOD_ANALYZER_VERSION
+					CONTMOAN_VERSION
 				);
 			}
 
 			// Enqueue the built Tailwind CSS
 			wp_enqueue_style(
 				'contmoan-tailwind',
-				CONTENT_MOOD_ANALYZER_URL . 'build/tailwind.build.bundle.css',
+				CONTMOAN_URL . 'build/tailwind.build.bundle.css',
 				array(),
-				CONTENT_MOOD_ANALYZER_VERSION
+				CONTMOAN_VERSION
 			);
 
 			wp_enqueue_script(
 				'contmoan-common',
-				CONTENT_MOOD_ANALYZER_ASSETS . '/common/js/common.js',
+				CONTMOAN_ASSETS . '/common/js/common.js',
 				array( 'jquery' ),
-				CONTENT_MOOD_ANALYZER_VERSION,
+				CONTMOAN_VERSION,
 				true
 			);
 

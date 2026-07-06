@@ -25,14 +25,14 @@ class Activation {
      */
     public function deactivate() {
         // Clear all sentiment transients
-        cma_clear_sentiment_cache();
+        contmoan_clear_sentiment_cache();
 
         // Stop any in-progress background bulk analysis - nothing will call
-        // cma_process_bulk_batch() again once deactivated, so leaving it
+        // contmoan_process_bulk_batch() again once deactivated, so leaving it
         // scheduled/"running" would just be a stale cron event and a stuck
         // progress bar if the plugin is reactivated later.
-        wp_clear_scheduled_hook( 'cma_process_bulk_batch' );
-        cma_cancel_bulk_queue();
+        wp_clear_scheduled_hook( 'contmoan_process_bulk_batch' );
+        contmoan_cancel_bulk_queue();
 
         flush_rewrite_rules();
     }

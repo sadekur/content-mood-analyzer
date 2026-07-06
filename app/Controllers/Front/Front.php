@@ -29,19 +29,19 @@ class Front {
             return;
         }
 
-        if ( ! cma_is_post_type_enabled( $post->post_type ) ) {
+        if ( ! contmoan_is_post_type_enabled( $post->post_type ) ) {
             return;
         }
 
         // Perform the analysis
-        cma_perform_sentiment_analysis( $post );
+        contmoan_perform_sentiment_analysis( $post );
     }
 
     /**
      * Add sentiment badge to content on singular post views
      */
     public function add_sentiment_badge($content) {
-        if (!is_singular() || !cma_is_post_type_enabled(get_post_type())) {
+        if (!is_singular() || !contmoan_is_post_type_enabled(get_post_type())) {
             return $content;
         }
 
@@ -55,7 +55,7 @@ class Front {
      * singular post views, so listing cards need their own hook.
      */
     public function add_sentiment_badge_to_excerpt($excerpt) {
-        if (is_singular() || !cma_is_post_type_enabled(get_post_type())) {
+        if (is_singular() || !contmoan_is_post_type_enabled(get_post_type())) {
             return $excerpt;
         }
 
@@ -68,7 +68,7 @@ class Front {
      * the configured badge position, analyzing the post first if needed.
      */
     private function apply_badge($post, $output) {
-        $settings = get_option('content_mood_analyzer_settings', array());
+        $settings = get_option('contmoan_settings', array());
         $position = isset($settings['badge_position']) ? $settings['badge_position'] : 'none';
 
         if ($position === 'none') {
@@ -78,10 +78,10 @@ class Front {
         $sentiment = get_post_meta($post->ID, '_post_sentiment', true);
 
         if (empty($sentiment)) {
-            $sentiment = cma_perform_sentiment_analysis($post);
+            $sentiment = contmoan_perform_sentiment_analysis($post);
         }
 
-        $badge = cma_get_sentiment_badge_html($sentiment);
+        $badge = contmoan_get_sentiment_badge_html($sentiment);
 
         return $position === 'top' ? $badge . $output : $output . $badge;
     }

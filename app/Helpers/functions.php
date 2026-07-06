@@ -2,16 +2,16 @@
  /**
  * Clear sentiment cache
  */
-function cma_clear_sentiment_cache() {
+function contmoan_clear_sentiment_cache() {
     global $wpdb;
     
-    $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_cma_posts_%' OR option_name LIKE '_transient_timeout_cma_posts_%'" );
+    $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_contmoan_posts_%' OR option_name LIKE '_transient_timeout_contmoan_posts_%'" );
 }
 
 /**
  * Convert keyword string to array
  */
-function cma_get_keywords_array( $keywords_string ) {
+function contmoan_get_keywords_array( $keywords_string ) {
     if ( empty( $keywords_string ) ) {
         return array();
     }
@@ -23,7 +23,7 @@ function cma_get_keywords_array( $keywords_string ) {
 /**
  * Count keyword matches in content
  */
-function cma_count_keyword_matches( $content, $keywords ) {
+function contmoan_count_keyword_matches( $content, $keywords ) {
     $count = 0;
     
     foreach ( $keywords as $keyword ) {
@@ -39,7 +39,7 @@ function cma_count_keyword_matches( $content, $keywords ) {
 /**
  * Get sentiment badge HTML
  */
-function cma_get_sentiment_badge_html( $sentiment ) {
+function contmoan_get_sentiment_badge_html( $sentiment ) {
     $labels = array(
         'positive' => __( 'Positive', 'content-mood-analyzer' ),
         'negative' => __( 'Negative', 'content-mood-analyzer' ),
@@ -55,8 +55,8 @@ function cma_get_sentiment_badge_html( $sentiment ) {
     );
 }
 
-function cma_get_setting( $key, $default = '' ) {
-        $settings = get_option( 'content_mood_analyzer_settings', array() );
+function contmoan_get_setting( $key, $default = '' ) {
+        $settings = get_option( 'contmoan_settings', array() );
         return isset( $settings[$key] ) ? $settings[$key] : $default;
 }
 
@@ -67,8 +67,8 @@ function cma_get_setting( $key, $default = '' ) {
  *
  * @return string[]
  */
-function cma_get_enabled_post_types() {
-    $types = cma_get_setting( 'enabled_post_types', array( 'post' ) );
+function contmoan_get_enabled_post_types() {
+    $types = contmoan_get_setting( 'enabled_post_types', array( 'post' ) );
 
     if ( ! is_array( $types ) || empty( $types ) ) {
         return array( 'post' );
@@ -80,21 +80,21 @@ function cma_get_enabled_post_types() {
 /**
  * Whether a given post type is enabled for sentiment analysis.
  */
-function cma_is_post_type_enabled( $post_type ) {
-    return in_array( $post_type, cma_get_enabled_post_types(), true );
+function contmoan_is_post_type_enabled( $post_type ) {
+    return in_array( $post_type, contmoan_get_enabled_post_types(), true );
 }
 
 /**
  * One-time migration of the settings option from its old name
- * (sentiment_analyzer_settings) to the current one (content_mood_analyzer_settings),
+ * (sentiment_analyzer_settings) to the current one (contmoan_settings),
  * so sites that saved settings before the rename don't lose them.
  */
-function cma_migrate_legacy_settings_option() {
-    if ( false === get_option( 'content_mood_analyzer_settings', false ) ) {
+function contmoan_migrate_legacy_settings_option() {
+    if ( false === get_option( 'contmoan_settings', false ) ) {
         $legacy = get_option( 'sentiment_analyzer_settings', false );
 
         if ( false !== $legacy ) {
-            update_option( 'content_mood_analyzer_settings', $legacy );
+            update_option( 'contmoan_settings', $legacy );
             delete_option( 'sentiment_analyzer_settings' );
         }
     }
@@ -104,20 +104,20 @@ function cma_migrate_legacy_settings_option() {
  * Perform sentiment analysis on a post by counting keyword matches.
  *
  * The Positive/Negative/Neutral keyword lists can themselves be researched
- * and generated with AI (see cma_get_ai_provider() / the /ai/generate-keywords
+ * and generated with AI (see contmoan_get_ai_provider() / the /ai/generate-keywords
  * REST route), but the actual per-post analysis is always this free,
  * instant keyword count - no AI call happens here.
  */
-function cma_perform_sentiment_analysis( $post ) {
+function contmoan_perform_sentiment_analysis( $post ) {
     $content = strtolower( $post->post_content . ' ' . $post->post_title );
 
-    $positive_keywords = cma_get_keywords_array( cma_get_setting( 'positive_keywords', '' ) );
-    $negative_keywords = cma_get_keywords_array( cma_get_setting( 'negative_keywords', '' ) );
-    $neutral_keywords  = cma_get_keywords_array( cma_get_setting( 'neutral_keywords', '' ) );
+    $positive_keywords = contmoan_get_keywords_array( contmoan_get_setting( 'positive_keywords', '' ) );
+    $negative_keywords = contmoan_get_keywords_array( contmoan_get_setting( 'negative_keywords', '' ) );
+    $neutral_keywords  = contmoan_get_keywords_array( contmoan_get_setting( 'neutral_keywords', '' ) );
 
-    $positive_count = cma_count_keyword_matches( $content, $positive_keywords );
-    $negative_count = cma_count_keyword_matches( $content, $negative_keywords );
-    $neutral_count  = cma_count_keyword_matches( $content, $neutral_keywords );
+    $positive_count = contmoan_count_keyword_matches( $content, $positive_keywords );
+    $negative_count = contmoan_count_keyword_matches( $content, $negative_keywords );
+    $neutral_count  = contmoan_count_keyword_matches( $content, $neutral_keywords );
 
     $sentiment = 'neutral';
 
@@ -134,7 +134,7 @@ function cma_perform_sentiment_analysis( $post ) {
         'neutral'  => $neutral_count,
     ) );
     update_post_meta( $post->ID, '_post_sentiment_analyzed_at', current_time( 'mysql' ) );
-    delete_transient( 'cma_posts_' . $sentiment );
+    delete_transient( 'contmoan_posts_' . $sentiment );
 
     return $sentiment;
 }
@@ -146,10 +146,10 @@ function cma_perform_sentiment_analysis( $post ) {
  * running this plugin. The interface already allows other providers to be
  * added without touching the REST endpoint that calls this.
  */
-function cma_get_ai_provider() {
+function contmoan_get_ai_provider() {
     return new \Content_Mood\Services\AI\Proxy_Provider(
-        CONTENT_MOOD_ANALYZER_AI_PROXY_URL,
-        CONTENT_MOOD_ANALYZER_AI_PROXY_TOKEN
+        CONTMOAN_AI_PROXY_URL,
+        CONTMOAN_AI_PROXY_TOKEN
     );
 }
 
@@ -158,16 +158,16 @@ function cma_get_ai_provider() {
  *
  * @return array{date:string,count:int}
  */
-function cma_ai_get_usage() {
+function contmoan_ai_get_usage() {
     $today = current_time( 'Y-m-d' );
-    $usage = get_option( 'content_mood_analyzer_ai_usage', array() );
+    $usage = get_option( 'contmoan_ai_usage', array() );
 
     if ( empty( $usage['date'] ) || $usage['date'] !== $today ) {
         $usage = array(
             'date'  => $today,
             'count' => 0,
         );
-        update_option( 'content_mood_analyzer_ai_usage', $usage );
+        update_option( 'contmoan_ai_usage', $usage );
     }
 
     return $usage;
@@ -177,27 +177,27 @@ function cma_ai_get_usage() {
  * Fixed daily cap on AI requests (testing + keyword generation). Not user
  * configurable - every site gets the same allowance.
  */
-function cma_ai_daily_limit() {
+function contmoan_ai_daily_limit() {
     return 10;
 }
 
 /**
  * Whether today's AI request count has reached the daily limit.
  */
-function cma_ai_limit_reached() {
-    $usage = cma_ai_get_usage();
+function contmoan_ai_limit_reached() {
+    $usage = contmoan_ai_get_usage();
 
-    return $usage['count'] >= cma_ai_daily_limit();
+    return $usage['count'] >= contmoan_ai_daily_limit();
 }
 
 /**
  * Record one AI API request against today's usage counter.
  */
-function cma_ai_record_usage() {
-    $usage = cma_ai_get_usage();
+function contmoan_ai_record_usage() {
+    $usage = contmoan_ai_get_usage();
     $usage['count']++;
 
-    update_option( 'content_mood_analyzer_ai_usage', $usage );
+    update_option( 'contmoan_ai_usage', $usage );
 }
 
 /**
@@ -205,10 +205,10 @@ function cma_ai_record_usage() {
  *
  * @return array{used:int,limit:int,remaining:int,date:string,last_error:?string}
  */
-function cma_ai_get_usage_status() {
-    $usage = cma_ai_get_usage();
-    $limit = cma_ai_daily_limit();
-    $error = cma_ai_get_last_error();
+function contmoan_ai_get_usage_status() {
+    $usage = contmoan_ai_get_usage();
+    $limit = contmoan_ai_daily_limit();
+    $error = contmoan_ai_get_last_error();
 
     return array(
         'used'       => $usage['count'],
@@ -223,8 +223,8 @@ function cma_ai_get_usage_status() {
  * Record the most recent AI request failure, so it can be surfaced in the
  * admin UI instead of failing silently.
  */
-function cma_ai_set_last_error( $message ) {
-    update_option( 'content_mood_analyzer_ai_last_error', array(
+function contmoan_ai_set_last_error( $message ) {
+    update_option( 'contmoan_ai_last_error', array(
         'message' => $message,
         'time'    => current_time( 'mysql' ),
     ) );
@@ -233,15 +233,15 @@ function cma_ai_set_last_error( $message ) {
 /**
  * Clear the last recorded AI failure - called whenever a request succeeds.
  */
-function cma_ai_clear_last_error() {
-    delete_option( 'content_mood_analyzer_ai_last_error' );
+function contmoan_ai_clear_last_error() {
+    delete_option( 'contmoan_ai_last_error' );
 }
 
 /**
  * @return array{message:string,time:string}|null
  */
-function cma_ai_get_last_error() {
-    $error = get_option( 'content_mood_analyzer_ai_last_error', null );
+function contmoan_ai_get_last_error() {
+    $error = get_option( 'contmoan_ai_last_error', null );
 
     return $error ?: null;
 }
@@ -262,8 +262,8 @@ function cma_ai_get_last_error() {
  *
  * @return array{status:string,total:int,processed:int,positive:int,negative:int,neutral:int,post_ids:int[],started_at:?string,finished_at:?string}
  */
-function cma_get_bulk_queue() {
-    return get_option( 'content_mood_analyzer_bulk_queue', array(
+function contmoan_get_bulk_queue() {
+    return get_option( 'contmoan_bulk_queue', array(
         'status'      => 'idle',
         'total'       => 0,
         'processed'   => 0,
@@ -276,18 +276,18 @@ function cma_get_bulk_queue() {
     ) );
 }
 
-function cma_save_bulk_queue( $queue ) {
+function contmoan_save_bulk_queue( $queue ) {
     // autoload=false: this can hold thousands of post IDs while running,
     // no reason to load it on every request via the alloptions cache.
-    update_option( 'content_mood_analyzer_bulk_queue', $queue, false );
+    update_option( 'contmoan_bulk_queue', $queue, false );
 }
 
 /**
  * Posts processed per WP-Cron batch. Kept small so every batch finishes
  * comfortably within typical PHP execution time limits.
  */
-function cma_bulk_batch_size() {
-    return max( 1, (int) apply_filters( 'content_mood_analyzer_bulk_batch_size', 20 ) );
+function contmoan_bulk_batch_size() {
+    return max( 1, (int) apply_filters( 'contmoan_bulk_batch_size', 20 ) );
 }
 
 /**
@@ -295,8 +295,8 @@ function cma_bulk_batch_size() {
  * back, since each batch is nudged via a real (if lightweight) HTTP request
  * to wp-cron.php - a large site shouldn't self-hammer its own server.
  */
-function cma_bulk_batch_interval() {
-    return max( 1, (int) apply_filters( 'content_mood_analyzer_bulk_batch_interval', 5 ) );
+function contmoan_bulk_batch_interval() {
+    return max( 1, (int) apply_filters( 'contmoan_bulk_batch_interval', 5 ) );
 }
 
 /**
@@ -305,21 +305,21 @@ function cma_bulk_batch_interval() {
  * progress, so a double-click (or two open tabs) can't start two overlapping
  * queues.
  */
-function cma_start_bulk_queue() {
-    $queue = cma_get_bulk_queue();
+function contmoan_start_bulk_queue() {
+    $queue = contmoan_get_bulk_queue();
 
     if ( 'running' === $queue['status'] ) {
         return false;
     }
 
     $post_ids = get_posts( array(
-        'post_type'      => cma_get_enabled_post_types(),
+        'post_type'      => contmoan_get_enabled_post_types(),
         'post_status'    => 'publish',
         'posts_per_page' => -1,
         'fields'         => 'ids',
     ) );
 
-    cma_save_bulk_queue( array(
+    contmoan_save_bulk_queue( array(
         'status'      => 'running',
         'total'       => count( $post_ids ),
         'processed'   => 0,
@@ -331,7 +331,7 @@ function cma_start_bulk_queue() {
         'finished_at' => null,
     ) );
 
-    cma_schedule_next_bulk_batch();
+    contmoan_schedule_next_bulk_batch();
 
     return true;
 }
@@ -340,8 +340,8 @@ function cma_start_bulk_queue() {
  * Cancel an in-progress run. Posts already processed keep the sentiment they
  * were given; only the remaining queue is dropped.
  */
-function cma_cancel_bulk_queue() {
-    $queue = cma_get_bulk_queue();
+function contmoan_cancel_bulk_queue() {
+    $queue = contmoan_get_bulk_queue();
 
     if ( 'running' !== $queue['status'] ) {
         return;
@@ -351,16 +351,16 @@ function cma_cancel_bulk_queue() {
     $queue['finished_at'] = current_time( 'mysql' );
     $queue['post_ids']    = array();
 
-    cma_save_bulk_queue( $queue );
+    contmoan_save_bulk_queue( $queue );
 }
 
 /**
  * Schedule the next batch and nudge WP-Cron so it runs soon, rather than
  * waiting for the next organic site visit to notice the scheduled event.
  */
-function cma_schedule_next_bulk_batch() {
-    if ( ! wp_next_scheduled( 'cma_process_bulk_batch' ) ) {
-        wp_schedule_single_event( time() + cma_bulk_batch_interval(), 'cma_process_bulk_batch' );
+function contmoan_schedule_next_bulk_batch() {
+    if ( ! wp_next_scheduled( 'contmoan_process_bulk_batch' ) ) {
+        wp_schedule_single_event( time() + contmoan_bulk_batch_interval(), 'contmoan_process_bulk_batch' );
     }
 
     if ( function_exists( 'spawn_cron' ) ) {
@@ -372,14 +372,14 @@ function cma_schedule_next_bulk_batch() {
  * WP-Cron callback: analyze one batch of posts, then either schedule the
  * next batch or mark the run complete.
  */
-function cma_process_bulk_batch() {
-    $queue = cma_get_bulk_queue();
+function contmoan_process_bulk_batch() {
+    $queue = contmoan_get_bulk_queue();
 
     if ( 'running' !== $queue['status'] || empty( $queue['post_ids'] ) ) {
         return;
     }
 
-    $batch = array_splice( $queue['post_ids'], 0, cma_bulk_batch_size() );
+    $batch = array_splice( $queue['post_ids'], 0, contmoan_bulk_batch_size() );
 
     foreach ( $batch as $post_id ) {
         $post = get_post( $post_id );
@@ -388,7 +388,7 @@ function cma_process_bulk_batch() {
             continue;
         }
 
-        $sentiment = cma_perform_sentiment_analysis( $post );
+        $sentiment = contmoan_perform_sentiment_analysis( $post );
 
         if ( isset( $queue[ $sentiment ] ) ) {
             $queue[ $sentiment ]++;
@@ -400,12 +400,12 @@ function cma_process_bulk_batch() {
     if ( empty( $queue['post_ids'] ) ) {
         $queue['status']      = 'complete';
         $queue['finished_at'] = current_time( 'mysql' );
-        cma_save_bulk_queue( $queue );
-        cma_clear_sentiment_cache();
+        contmoan_save_bulk_queue( $queue );
+        contmoan_clear_sentiment_cache();
         return;
     }
 
-    cma_save_bulk_queue( $queue );
-    cma_schedule_next_bulk_batch();
+    contmoan_save_bulk_queue( $queue );
+    contmoan_schedule_next_bulk_batch();
 }
-add_action( 'cma_process_bulk_batch', 'cma_process_bulk_batch' );
+add_action( 'contmoan_process_bulk_batch', 'contmoan_process_bulk_batch' );

@@ -57,10 +57,10 @@ class Proxy_Provider implements Provider_Interface {
 
 		// Every attempt that reaches the network counts against the shared
 		// daily quota, whether or not the proxy returns a usable result.
-		cma_ai_record_usage();
+		contmoan_ai_record_usage();
 
 		if ( is_wp_error( $response ) ) {
-			cma_ai_set_last_error(
+			contmoan_ai_set_last_error(
 				sprintf(
 					/* translators: %s: underlying network error message */
 					__( 'Could not reach the AI proxy: %s', 'content-mood-analyzer' ),
@@ -74,7 +74,7 @@ class Proxy_Provider implements Provider_Interface {
 		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( 200 !== $status || empty( $body['success'] ) ) {
-			cma_ai_set_last_error(
+			contmoan_ai_set_last_error(
 				! empty( $body['message'] )
 					? $body['message']
 					: sprintf(
@@ -91,11 +91,11 @@ class Proxy_Provider implements Provider_Interface {
 			: array();
 
 		if ( empty( $keywords ) ) {
-			cma_ai_set_last_error( __( 'The AI proxy did not return any usable keywords.', 'content-mood-analyzer' ) );
+			contmoan_ai_set_last_error( __( 'The AI proxy did not return any usable keywords.', 'content-mood-analyzer' ) );
 			return null;
 		}
 
-		cma_ai_clear_last_error();
+		contmoan_ai_clear_last_error();
 
 		return array_values( $keywords );
 	}

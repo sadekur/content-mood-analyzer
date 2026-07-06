@@ -33,7 +33,7 @@ class Shortcode {
         $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
         
         // Check cache
-        $cache_key = 'cma_posts_' . $sentiment . '_page_' . $paged . '_per_' . $posts_per_page;
+        $cache_key = 'contmoan_posts_' . $sentiment . '_page_' . $paged . '_per_' . $posts_per_page;
         $cached_output = get_transient($cache_key);
         
         if ($cached_output !== false) {
@@ -42,7 +42,7 @@ class Shortcode {
         
         // Query posts
         $args = array(
-            'post_type' => cma_get_enabled_post_types(),
+            'post_type' => contmoan_get_enabled_post_types(),
             'post_status' => 'publish',
             'posts_per_page' => $posts_per_page,
             'paged' => $paged,
@@ -69,7 +69,7 @@ class Shortcode {
                     <h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
                     <div class="sentiment-post-meta">
                         <span class="post-date"><?php echo get_the_date(); ?></span>
-                        <?php echo cma_get_sentiment_badge_html($sentiment); ?>
+                        <?php echo contmoan_get_sentiment_badge_html($sentiment); ?>
                     </div>
                     <div class="sentiment-post-excerpt">
                         <?php the_excerpt(); ?>

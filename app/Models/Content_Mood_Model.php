@@ -26,7 +26,7 @@ class Content_Mood_Model {
         $to_date    = isset( $args['to_date'] ) ? trim( $args['to_date'] ) : null;
 
         $query_args = array(
-            'post_type'      => cma_get_enabled_post_types(),
+            'post_type'      => contmoan_get_enabled_post_types(),
             'post_status'    => 'publish',
             'posts_per_page' => $per_page,
             'offset'         => $offset,
@@ -98,7 +98,7 @@ class Content_Mood_Model {
     public static function get_sentiment_counts() {
         global $wpdb;
 
-        $post_types   = cma_get_enabled_post_types();
+        $post_types   = contmoan_get_enabled_post_types();
         $placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
 
         $sentiments = array( 'positive', 'neutral', 'negative' );
@@ -139,7 +139,7 @@ class Content_Mood_Model {
         $days      = max( 1, (int) $days );
         $from_date = gmdate( 'Y-m-d 00:00:00', strtotime( "-{$days} days" ) );
 
-        $post_types   = cma_get_enabled_post_types();
+        $post_types   = contmoan_get_enabled_post_types();
         $placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
 
         $rows = $wpdb->get_results(
@@ -185,7 +185,7 @@ class Content_Mood_Model {
     public static function get( $post_id ) {
         $post = get_post( $post_id );
         
-        if ( ! $post || $post->post_status !== 'publish' || ! cma_is_post_type_enabled( $post->post_type ) ) {
+        if ( ! $post || $post->post_status !== 'publish' || ! contmoan_is_post_type_enabled( $post->post_type ) ) {
             return null;
         }
 
@@ -203,8 +203,8 @@ class Content_Mood_Model {
     //     // Delete all sentiment-related transients
     //     $wpdb->query(
     //         "DELETE FROM {$wpdb->options} 
-    //         WHERE option_name LIKE '_transient_cma_posts_%' 
-    //         OR option_name LIKE '_transient_timeout_cma_posts_%'"
+    //         WHERE option_name LIKE '_transient_contmoan_posts_%' 
+    //         OR option_name LIKE '_transient_timeout_contmoan_posts_%'"
     //     );
     // }
 }

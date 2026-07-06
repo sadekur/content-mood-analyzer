@@ -13,7 +13,7 @@ class Content_Mood_Data {
      * Analyze a single post
      */
 
-	private $option_name = 'content_mood_analyzer_settings';
+	private $option_name = 'contmoan_settings';
 
 
     /**
@@ -68,10 +68,10 @@ class Content_Mood_Data {
                 in_array( 'negative_keywords', $updated_fields ) ||
                 in_array( 'neutral_keywords', $updated_fields ) ||
                 in_array( 'enabled_post_types', $updated_fields ) ) {
-                cma_clear_sentiment_cache();
+                contmoan_clear_sentiment_cache();
             }
 
-            // Provider/model/key are hardcoded now (see cma_get_ai_provider()) -
+            // Provider/model/key are hardcoded now (see contmoan_get_ai_provider()) -
             // never echo back whatever may be left in the option from before
             // this was locked down.
             $response_settings = $current;
@@ -81,7 +81,7 @@ class Content_Mood_Data {
                 'success' => true,
                 'updated' => $updated_fields,
                 'settings' => $response_settings,
-                'ai_usage' => cma_ai_get_usage_status(),
+                'ai_usage' => contmoan_ai_get_usage_status(),
                 'message' => __( 'Settings saved successfully.', 'content-mood-analyzer' ),
             ) );
         }
@@ -105,7 +105,7 @@ class Content_Mood_Data {
             );
         }
 
-        if ( ! cma_is_post_type_enabled( $post->post_type ) ) {
+        if ( ! contmoan_is_post_type_enabled( $post->post_type ) ) {
             return new \WP_Error(
                 'invalid_post_type',
                 __( 'This post type is not enabled for sentiment analysis.', 'content-mood-analyzer' ),
@@ -114,7 +114,7 @@ class Content_Mood_Data {
         }
 
         // Analyze sentiment
-        $sentiment = cma_perform_sentiment_analysis( $post );
+        $sentiment = contmoan_perform_sentiment_analysis( $post );
 
         return rest_ensure_response( array(
             'success' => true,
@@ -127,22 +127,22 @@ class Content_Mood_Data {
     /**
      * Start a background bulk-analysis run over every post of an enabled
      * type. Returns immediately - the actual analysis happens in small
-     * WP-Cron batches (see cma_process_bulk_batch()), so this never risks
+     * WP-Cron batches (see contmoan_process_bulk_batch()), so this never risks
      * timing out on a large site. Poll /analyze/bulk/status for progress.
      */
     public function bulk_analyze( $request ) {
-        if ( ! cma_start_bulk_queue() ) {
+        if ( ! contmoan_start_bulk_queue() ) {
             return rest_ensure_response( array(
                 'success' => false,
                 'message' => __( 'A bulk analysis is already running.', 'content-mood-analyzer' ),
-                'queue'   => $this->format_bulk_queue( cma_get_bulk_queue() ),
+                'queue'   => $this->format_bulk_queue( contmoan_get_bulk_queue() ),
             ) );
         }
 
         return rest_ensure_response( array(
             'success' => true,
             'message' => __( 'Bulk analysis started in the background.', 'content-mood-analyzer' ),
-            'queue'   => $this->format_bulk_queue( cma_get_bulk_queue() ),
+            'queue'   => $this->format_bulk_queue( contmoan_get_bulk_queue() ),
         ) );
     }
 
@@ -153,7 +153,7 @@ class Content_Mood_Data {
     public function get_bulk_status( $request ) {
         return rest_ensure_response( array(
             'success' => true,
-            'queue'   => $this->format_bulk_queue( cma_get_bulk_queue() ),
+            'queue'   => $this->format_bulk_queue( contmoan_get_bulk_queue() ),
         ) );
     }
 
@@ -162,12 +162,12 @@ class Content_Mood_Data {
      * their sentiment.
      */
     public function cancel_bulk_analysis( $request ) {
-        cma_cancel_bulk_queue();
+        contmoan_cancel_bulk_queue();
 
         return rest_ensure_response( array(
             'success' => true,
             'message' => __( 'Bulk analysis cancelled.', 'content-mood-analyzer' ),
-            'queue'   => $this->format_bulk_queue( cma_get_bulk_queue() ),
+            'queue'   => $this->format_bulk_queue( contmoan_get_bulk_queue() ),
         ) );
     }
 
@@ -193,7 +193,7 @@ class Content_Mood_Data {
      * Clear all sentiment caches
      */
     public function clear_cache( $request ) {
-        cma_clear_sentiment_cache();
+        contmoan_clear_sentiment_cache();
 
         return rest_ensure_response( array(
             'success' => true,
@@ -226,16 +226,16 @@ class Content_Mood_Data {
      * suggestions.
      */
     public function test_ai_connection( $request ) {
-        $provider = cma_get_ai_provider();
+        $provider = contmoan_get_ai_provider();
         $keywords = $provider->generate_keywords( 'positive', 'general test' );
 
         if ( null === $keywords ) {
-            $error = cma_ai_get_last_error();
+            $error = contmoan_ai_get_last_error();
 
             return rest_ensure_response( array(
                 'success'  => false,
                 'message'  => $error ? $error['message'] : __( 'The AI request failed for an unknown reason.', 'content-mood-analyzer' ),
-                'ai_usage' => cma_ai_get_usage_status(),
+                'ai_usage' => contmoan_ai_get_usage_status(),
             ) );
         }
 
@@ -246,7 +246,7 @@ class Content_Mood_Data {
                 __( 'Success! Gemini returned keywords like: %s.', 'content-mood-analyzer' ),
                 implode( ', ', array_slice( $keywords, 0, 5 ) )
             ),
-            'ai_usage' => cma_ai_get_usage_status(),
+            'ai_usage' => contmoan_ai_get_usage_status(),
         ) );
     }
 
@@ -265,31 +265,31 @@ class Content_Mood_Data {
             ) );
         }
 
-        if ( cma_ai_limit_reached() ) {
+        if ( contmoan_ai_limit_reached() ) {
             return rest_ensure_response( array(
                 'success'  => false,
                 'message'  => __( 'Daily AI request limit reached. Try again after it resets at midnight.', 'content-mood-analyzer' ),
-                'ai_usage' => cma_ai_get_usage_status(),
+                'ai_usage' => contmoan_ai_get_usage_status(),
             ) );
         }
 
-        $provider = cma_get_ai_provider();
+        $provider = contmoan_get_ai_provider();
         $keywords = $provider->generate_keywords( $sentiment, $prompt );
 
         if ( null === $keywords ) {
-            $error = cma_ai_get_last_error();
+            $error = contmoan_ai_get_last_error();
 
             return rest_ensure_response( array(
                 'success'  => false,
                 'message'  => $error ? $error['message'] : __( 'The AI request failed for an unknown reason.', 'content-mood-analyzer' ),
-                'ai_usage' => cma_ai_get_usage_status(),
+                'ai_usage' => contmoan_ai_get_usage_status(),
             ) );
         }
 
         return rest_ensure_response( array(
             'success'  => true,
             'keywords' => implode( ', ', $keywords ),
-            'ai_usage' => cma_ai_get_usage_status(),
+            'ai_usage' => contmoan_ai_get_usage_status(),
             'message'  => __( 'Keywords generated.', 'content-mood-analyzer' ),
         ) );
     }
@@ -366,7 +366,7 @@ class Content_Mood_Data {
          * @param array $formatted_posts The formatted posts.
          * @param \WP_REST_Request $request The request object.
          */
-        $formatted_posts = apply_filters( 'content_mood_analyzer_list_posts', $formatted_posts, $request );
+        $formatted_posts = apply_filters( 'contmoan_list_posts', $formatted_posts, $request );
 
         return rest_ensure_response(
             array(
@@ -392,7 +392,7 @@ class Content_Mood_Data {
         $post_id = $request->get_param( 'id' );
         $post = get_post( $post_id );
 
-        if ( ! $post || $post->post_status !== 'publish' || ! cma_is_post_type_enabled( $post->post_type ) ) {
+        if ( ! $post || $post->post_status !== 'publish' || ! contmoan_is_post_type_enabled( $post->post_type ) ) {
             return rest_ensure_response( array(
                 'success' => false,
                 'message' => __( 'Post not found.', 'content-mood-analyzer' ),
@@ -435,7 +435,7 @@ class Content_Mood_Data {
 
         $settings = wp_parse_args( $settings, $defaults );
 
-        // Provider/model/key are hardcoded now (see cma_get_ai_provider()) -
+        // Provider/model/key are hardcoded now (see contmoan_get_ai_provider()) -
         // never echo back whatever may be left in the option from before
         // this was locked down.
         unset( $settings['ai_provider'], $settings['ai_model'], $settings['ai_api_key'] );
@@ -444,7 +444,7 @@ class Content_Mood_Data {
             'success' => true,
             'settings' => $settings,
             'available_post_types' => $this->get_available_post_types(),
-            'ai_usage' => cma_ai_get_usage_status(),
+            'ai_usage' => contmoan_ai_get_usage_status(),
         ) );
     }
 
