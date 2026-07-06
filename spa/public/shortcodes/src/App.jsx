@@ -27,7 +27,7 @@ const App = () => {
   };
 
   return (
-    <div className="content-mood-analyzer-public max-w-4xl mx-auto p-4 bg-gray-50 rounded shadow-sm">
+    <div className="contmoan-public max-w-4xl mx-auto p-4 bg-gray-50 rounded shadow-sm">
       <h2 className="text-xl font-semibold text-gray-800 mb-4">Content Mood Analyzer Public Component</h2>
       
       <div className="mb-4">
