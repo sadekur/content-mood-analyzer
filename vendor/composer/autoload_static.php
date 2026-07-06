@@ -13,12 +13,12 @@ class ComposerStaticInit323b94db42dc52a3caf222a9a04c87f0
     public static $prefixLengthsPsr4 = array (
         'C' => 
         array (
-            'Content_Mood\\' => 13,
+            'Contmoan\\' => 9,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Content_Mood\\' => 
+        'Contmoan\\' => 
         array (
             0 => __DIR__ . '/../..' . '/app',
         ),
