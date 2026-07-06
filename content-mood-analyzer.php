@@ -100,8 +100,8 @@ final class CONTMOAN_Plugin{
 
 	}
 }
-function content_mood_analyzer() {
-	return Content_Mood_Analyzer::init();
+function contmoan() {
+	return CONTMOAN_Plugin::init();
 }
 
-content_mood_analyzer();
+contmoan();
