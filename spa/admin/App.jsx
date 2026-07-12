@@ -71,7 +71,7 @@ const App = () => {
     // so clicking it mid-SPA caused a full page reload. Intercept those
     // clicks and just clear the hash ourselves instead.
     useEffect(() => {
-        const topLevelMenu = document.getElementById("toplevel_page_content-mood-analyzer");
+        const topLevelMenu = document.getElementById("toplevel_page_contmoan");
         if (!topLevelMenu) return;
 
         const handleClick = (event) => {
