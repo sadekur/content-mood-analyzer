@@ -1,7 +1,7 @@
 <?php
 namespace Contmoan\Controllers\Common;
 use WP_REST_Server;
-use Contmoan\API\Content_Mood_Data;
+use Contmoan\API\Contmoan_Data;
 use Contmoan\Traits\Rest;
 
 defined( 'ABSPATH' ) || exit;
@@ -32,7 +32,7 @@ class API {
             '/settings',
             array(
                 'methods' => 'POST',
-                'callback' => array( new Content_Mood_Data(), 'update_settings' ),
+                'callback' => array( new Contmoan_Data(), 'update_settings' ),
                 'permission_callback' => array( $this, 'check_permission' ),
                 'args' => array(
                     'positive_keywords' => array(
@@ -77,14 +77,14 @@ class API {
         // Get settings
 		register_rest_route( $this->namespace, '/settings', array(
             'methods' => 'GET',
-            'callback' => array( new Content_Mood_Data(), 'get_settings' ),
+            'callback' => array( new Contmoan_Data(), 'get_settings' ),
             'permission_callback' => array( $this, 'check_permission' ),
         ));
 
         // Analyze single post
         register_rest_route( $this->namespace, '/analyze/(?P<id>\d+)', array(
             'methods' => 'POST',
-            'callback'   => array( new Content_Mood_Data(), 'analyze_post' ),
+            'callback'   => array( new Contmoan_Data(), 'analyze_post' ),
             'permission_callback' => array( $this, 'check_permission' ),
             'args' => array(
                 'id' => array(
@@ -98,28 +98,28 @@ class API {
         // Start a background bulk analysis run
         register_rest_route( $this->namespace, '/analyze/bulk', array(
             'methods' => 'POST',
-            'callback' => array( new Content_Mood_Data(), 'bulk_analyze' ),
+            'callback' => array( new Contmoan_Data(), 'bulk_analyze' ),
             'permission_callback' => array( $this, 'check_permission' ),
         ));
 
         // Poll progress of the background bulk analysis run
         register_rest_route( $this->namespace, '/analyze/bulk/status', array(
             'methods' => WP_REST_Server::READABLE,
-            'callback' => array( new Content_Mood_Data(), 'get_bulk_status' ),
+            'callback' => array( new Contmoan_Data(), 'get_bulk_status' ),
             'permission_callback' => array( $this, 'check_permission' ),
         ));
 
         // Cancel the background bulk analysis run
         register_rest_route( $this->namespace, '/analyze/bulk/cancel', array(
             'methods' => 'POST',
-            'callback' => array( new Content_Mood_Data(), 'cancel_bulk_analysis' ),
+            'callback' => array( new Contmoan_Data(), 'cancel_bulk_analysis' ),
             'permission_callback' => array( $this, 'check_permission' ),
         ));
 
         // Get post sentiment
         register_rest_route( $this->namespace, '/sentiment/(?P<id>\d+)', array(
             'methods' => 'GET',
-            'callback' => array( new Content_Mood_Data(), 'get_sentiment' ),
+            'callback' => array( new Contmoan_Data(), 'get_sentiment' ),
             'permission_callback' => array( $this, 'check_permission' ),
             'args' => array(
                 'id' => array(
@@ -135,7 +135,7 @@ class API {
             $this->namespace,
             '/cache/clear', array(
             'methods' => 'POST',
-			'callback'   => array( new Content_Mood_Data(), 'clear_cache' ),
+			'callback'   => array( new Contmoan_Data(), 'clear_cache' ),
             'permission_callback' => array( $this, 'check_permission' ),
         ));
 
@@ -144,7 +144,7 @@ class API {
             '/trend',
             array(
                 'methods'             => WP_REST_Server::READABLE,
-                'callback'            => array( new Content_Mood_Data(), 'get_trend' ),
+                'callback'            => array( new Contmoan_Data(), 'get_trend' ),
                 'permission_callback' => array( $this, 'check_permission' ),
                 'args'                => array(
                     'days' => array(
@@ -160,7 +160,7 @@ class API {
             '/ai/test',
             array(
                 'methods'             => 'POST',
-                'callback'            => array( new Content_Mood_Data(), 'test_ai_connection' ),
+                'callback'            => array( new Contmoan_Data(), 'test_ai_connection' ),
                 'permission_callback' => array( $this, 'check_permission' ),
             )
         );
@@ -170,7 +170,7 @@ class API {
             '/ai/generate-keywords',
             array(
                 'methods'             => 'POST',
-                'callback'            => array( new Content_Mood_Data(), 'generate_keywords' ),
+                'callback'            => array( new Contmoan_Data(), 'generate_keywords' ),
                 'permission_callback' => array( $this, 'check_permission' ),
                 'args'                => array(
                     'sentiment' => array(
@@ -191,7 +191,7 @@ class API {
             '/posts',
             array(
                 'methods'    => WP_REST_Server::READABLE,
-                'callback'   => array( new Content_Mood_Data(), 'list' ),
+                'callback'   => array( new Contmoan_Data(), 'list' ),
                 'args'       => array(
                     'sentiment' => array(
                         'description'       => __( 'Filter by sentiment type', 'content-mood-analyzer' ),
@@ -244,7 +244,7 @@ class API {
             '/posts/(?P<id>\d+)',
             array(
                 'methods'    => WP_REST_Server::READABLE,
-                'callback'   => array( new Content_Mood_Data(), 'get' ),
+                'callback'   => array( new Contmoan_Data(), 'get' ),
                 'args'       => array(
                     'id' => array(
                         'description' => __( 'The post ID', 'content-mood-analyzer' ),
