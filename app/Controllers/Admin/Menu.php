@@ -23,7 +23,7 @@ class Menu {
     public function hide_unrelated_admin_notices() {
         $screen = get_current_screen();
 
-        if ( $screen && 'toplevel_page_content-mood-analyzer' === $screen->id ) {
+        if ( $screen && 'toplevel_page_contmoan' === $screen->id ) {
             remove_all_actions( 'admin_notices' );
             remove_all_actions( 'all_admin_notices' );
         }
