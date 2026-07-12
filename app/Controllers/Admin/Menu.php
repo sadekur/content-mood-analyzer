@@ -35,7 +35,7 @@ class Menu {
             __( 'Content Mood Analyzer', 'content-mood-analyzer' ),
             __( 'Content Mood Analyzer', 'content-mood-analyzer' ),
             'manage_options',
-            'content-mood-analyzer',
+            'contmoan',
             [ $this, 'render_main_page' ],
             'dashicons-chart-line',
             30
@@ -43,41 +43,41 @@ class Menu {
 
         // Overview submenu (same as parent - NO hash)
         add_submenu_page(
-            'content-mood-analyzer',
+            'contmoan',
             __( 'Overview', 'content-mood-analyzer' ),
             __( 'Overview', 'content-mood-analyzer' ),
             'manage_options',
-            'content-mood-analyzer',
+            'contmoan',
             [ $this, 'render_main_page' ]
         );
 
         // Dashboard submenu (WITH hash)
         add_submenu_page(
-            'content-mood-analyzer',
+            'contmoan',
             __( 'Dashboard', 'content-mood-analyzer' ),
             __( 'Dashboard', 'content-mood-analyzer' ),
             'manage_options',
-            'content-mood-analyzer#/dashboard',
+            'contmoan#/dashboard',
             [ $this, 'render_main_page' ]
         );
 
         // All Sentiments submenu
         add_submenu_page(
-            'content-mood-analyzer',
+            'contmoan',
             __( 'All Sentiments', 'content-mood-analyzer' ),
             __( 'All Sentiments', 'content-mood-analyzer' ),
             'manage_options',
-            'content-mood-analyzer#/sentiments',
+            'contmoan#/sentiments',
             [ $this, 'render_main_page' ]
         );
 
         // Settings submenu
         add_submenu_page(
-            'content-mood-analyzer',
+            'contmoan',
             __( 'Settings', 'content-mood-analyzer' ),
             __( 'Settings', 'content-mood-analyzer' ),
             'manage_options',
-            'content-mood-analyzer#/settings',
+            'contmoan#/settings',
             [ $this, 'render_main_page' ]
         );
     }
