@@ -4,9 +4,9 @@ namespace Contmoan\API;
 defined( 'ABSPATH' ) || exit;
 
 use Contmoan\Traits\Rest;
-use Contmoan\Models\Content_Mood_Model as Content_Mood_Data_Model;
+use Contmoan\Models\Contmoan_Model as Contmoan_Data_Model;
 
-class Content_Mood_Data {
+class Contmoan_Data {
 
 	use Rest;
  	/**
