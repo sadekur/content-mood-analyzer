@@ -4,12 +4,12 @@ namespace Contmoan\Models;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class Content_Mood_Model
+ * Class Contmoan_Model
  * Handles content mood data model operations.
  *
  * @package Contmoan\Models
  */
-class Content_Mood_Model {
+class Contmoan_Model {
 
     /**
      * Get posts with filters
