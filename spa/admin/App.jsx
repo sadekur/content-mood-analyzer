@@ -40,12 +40,12 @@ const App = () => {
         return () => window.removeEventListener("hashchange", handleHashChange);
     }, []);
 
-    // WordPress only ever sees ?page=content-mood-analyzer - it has no idea
+    // WordPress only ever sees ?page=contmoan - it has no idea
     // about the #/dashboard-style hash this SPA routes on, so its
     // server-rendered "current" submenu highlight always lands on Overview.
     // Fix it up client-side to match whichever hash-page is actually shown.
     useEffect(() => {
-        const topLevelMenu = document.getElementById("toplevel_page_content-mood-analyzer");
+        const topLevelMenu = document.getElementById("toplevel_page_contmoan");
         if (!topLevelMenu) return;
 
         const submenuLinks = topLevelMenu.querySelectorAll(".wp-submenu a");
