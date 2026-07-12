@@ -215,7 +215,7 @@ class Content_Mood_Data {
         return rest_ensure_response( array(
             'success' => true,
             'days'    => $days,
-            'trend'   => Content_Mood_Data_Model::get_sentiment_trend( $days ),
+            'trend'   => Contmoan_Data_Model::get_sentiment_trend( $days ),
         ) );
     }
 
@@ -320,7 +320,7 @@ class Content_Mood_Data {
         }
 
         // Get posts using the model method
-        $result = Content_Mood_Data_Model::list( $filters, $per_page, ( $page - 1 ) * $per_page, $sort );
+        $result = Contmoan_Data_Model::list( $filters, $per_page, ( $page - 1 ) * $per_page, $sort );
 
         if ( empty( $result['posts'] ) ) {
             return rest_ensure_response( array(
@@ -331,7 +331,7 @@ class Content_Mood_Data {
                 'page'             => $page,
                 'per_page'         => $per_page,
                 'total_pages'      => 0,
-                'sentiment_counts' => Content_Mood_Data_Model::get_sentiment_counts(),
+                'sentiment_counts' => Contmoan_Data_Model::get_sentiment_counts(),
             ) );
         }
 
@@ -357,7 +357,7 @@ class Content_Mood_Data {
         $total_pages = ceil( $result['total'] / $per_page );
 
         // Get sentiment counts for all types
-        $sentiment_counts = Content_Mood_Data_Model::get_sentiment_counts();
+        $sentiment_counts = Contmoan_Data_Model::get_sentiment_counts();
 
         /**
          * Filters the posts list.
