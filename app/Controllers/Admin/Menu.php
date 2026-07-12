@@ -93,7 +93,7 @@ class Menu {
         $screen = get_current_screen();
         
         // Only load on our plugin pages
-        if ( ! $screen || strpos( $screen->id, 'content-mood-analyzer' ) === false ) {
+        if ( ! $screen || strpos( $screen->id, 'contmoan' ) === false ) {
             return;
         }
     }
