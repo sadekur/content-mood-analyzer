@@ -14,7 +14,7 @@ A WordPress plugin to analyze the mood of your content as positive, negative, or
 
 Content Mood Analyzer scores your published content as positive, negative, or neutral by counting your own keyword lists against the title and content. Sentiment analysis is always this free, instant keyword count - AI is never used to classify your content directly.
 
-Optionally, AI (Google Gemini) can help you *research* those keyword lists: describe a category (e.g. "Customer & Product Reviews") and it generates a starting list of keywords for you to review and edit. This works out of the box with no setup and no API key of your own required - the plugin includes a shared, rate-limited AI helper, capped at a fair daily number of requests per site so it stays free for everyone.
+Optionally, AI can help you *research* those keyword lists: describe a category (e.g. "Customer & Product Reviews") and it generates a starting list of keywords for you to review and edit. This works out of the box with no setup and no API key of your own required - the plugin includes a shared, rate-limited AI helper, capped at a fair daily number of requests per site so it stays free for everyone.
 
 Features:
 - Analyze individual posts, or run a background bulk analysis across every existing post without timing out, even on large sites - with a live progress bar and the option to cancel a run in progress
