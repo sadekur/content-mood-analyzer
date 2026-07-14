@@ -1,7 +1,7 @@
 === Content Mood Analyzer ===
 Contributors: sadekur
 Tags: sentiment, mood, content analysis, keywords, ai
-Requires at least: 6.1
+Requires at least: 6.9
 Tested up to: 7.0
 Stable tag: 1.0.0
 Requires PHP: 7.4
