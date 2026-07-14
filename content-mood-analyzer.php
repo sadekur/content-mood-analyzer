@@ -3,7 +3,7 @@
  * Plugin Name:       Content Mood Analyzer
  * Plugin URI:        https://github.com/sadekur/content-mood-analyzer
  * Description:       A WordPress plugin to analyze mood of post content for positive, negative, or neutral.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 6.9
  * Requires PHP:      7.4
  * Author:            Sadekur Rahman

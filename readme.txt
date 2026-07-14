@@ -3,7 +3,7 @@ Contributors: sadekur
 Tags: sentiment, mood, content analysis, keywords, ai
 Requires at least: 6.9
 Tested up to: 7.0
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 Requires PHP: 7.4
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -90,3 +90,6 @@ This service is provided by Google LLC:
 
 = 1.0.0 =
 * Initial release
+
+= 1.0.1 =
+- Updated readme to reflect latest version number.
