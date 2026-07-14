@@ -1,0 +1,64 @@
+name: Deploy to WordPress.org
+
+# Every push to `deploy` ships whatever version is currently set in
+# README.txt as a new, immutable SVN tag. Only push to this branch once
+# the version has actually been bumped (see the version-sync step below) -
+# re-pushing the same version will fail because that SVN tag already exists.
+on:
+  push:
+    branches:
+      - deploy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # No committed package-lock.json/composer.lock in this repo, so
+      # `npm ci` isn't available - plain install instead.
+      - name: Install JS dependencies
+        run: npm install
+
+      - name: Build JS/CSS bundles
+        run: npm run build
+
+      - name: Install production-only PHP dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction
+
+      - name: Read plugin version from README.txt
+        id: plugin_version
+        run: |
+          VERSION=$(grep -m1 '^Stable tag:' README.txt | cut -d':' -f2 | tr -d '[:space:]')
+          if [ -z "$VERSION" ]; then
+            echo "Could not find 'Stable tag:' in README.txt" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to WordPress.org SVN
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          # The GitHub repo is named "sentiment-analyzer" (see `git remote -v`),
+          # but the approved WP.org slug is "content-mood-analyzer" - the
+          # action would infer the wrong slug from the repo name if this
+          # isn't set explicitly.
+          SLUG: content-mood-analyzer
+          VERSION: ${{ steps.plugin_version.outputs.version }}
+          # This repo's listing images live in svn-assets/, not the action's
+          # default .wordpress-org/ - point it there instead of renaming.
+          ASSETS_DIR: svn-assets

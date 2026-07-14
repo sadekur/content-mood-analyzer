@@ -13,3 +13,6 @@ coverage
 .editorconfig
 CLAUDE.md
 *.log
+release
+package-lock.json
+composer.lock
