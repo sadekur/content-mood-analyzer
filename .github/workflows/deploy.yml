@@ -1,7 +1,7 @@
 name: Deploy to WordPress.org
 
 # Every push to `deploy` ships whatever version is currently set in
-# README.txt as a new, immutable SVN tag. Only push to this branch once
+# readme.txt as a new, immutable SVN tag. Only push to this branch once
 # the version has actually been bumped (see the version-sync step below) -
 # re-pushing the same version will fail because that SVN tag already exists.
 on:
