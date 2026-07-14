@@ -16,3 +16,6 @@ CLAUDE.md
 release
 package-lock.json
 composer.lock
+package.json
+webpack.config.js
+tailwind.config.js
