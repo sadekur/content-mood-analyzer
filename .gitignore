@@ -8,3 +8,4 @@ package-lock.json
 tree.txt
 **/.DS_Store
 *.md
+.claude
