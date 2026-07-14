@@ -38,12 +38,12 @@ jobs:
       - name: Install production-only PHP dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction
 
-      - name: Read plugin version from README.txt
+      - name: Read plugin version from readme.txt
         id: plugin_version
         run: |
-          VERSION=$(grep -m1 '^Stable tag:' README.txt | cut -d':' -f2 | tr -d '[:space:]')
+          VERSION=$(grep -m1 '^Stable tag:' readme.txt | cut -d':' -f2 | tr -d '[:space:]')
           if [ -z "$VERSION" ]; then
-            echo "Could not find 'Stable tag:' in README.txt" >&2
+            echo "Could not find 'Stable tag:' in readme.txt" >&2
             exit 1
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
