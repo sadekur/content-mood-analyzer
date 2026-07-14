@@ -68,7 +68,6 @@ final class CONTMOAN_Plugin{
 		// proxy (see /cloudflare-worker) - not user configurable, so every
 		// install works with no setup. Neither value below is a real secret:
 		// the URL is just a public endpoint, and the token only filters out
-		// drive-by requests (the real Gemini key lives solely in the
 		define( 'CONTMOAN_AI_PROXY_URL', 'https://content-mood-analyzer-ai-proxy.soikut.workers.dev' );
 		define( 'CONTMOAN_AI_PROXY_TOKEN', 'b6fed5e964baaa2dcd3c7969870f84c70791b7cd02afdf5e' );
 	}
